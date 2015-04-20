@@ -11,6 +11,7 @@ using namespace std;
 using namespace NTL;
 
 const ZZ w(12345), q((1LL << 31LL) - 1LL);
+const ZZ aBound(12345), eBound(100);
 const int l = 34;
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
@@ -28,13 +29,13 @@ mat_ZZ_p getBitMatrix(mat_ZZ_p S);
 mat_ZZ_p getSecretKey(mat_ZZ_p T);
 
 // returns M
-mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T);
+mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound);
 
 // finds c* then returns Mc*
 vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c);
 
 // as described, treating I as the secret key and wx as ciphertext
-vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x);
+vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x);
 
 
 mat_ZZ_p getRandomMatrix(long row, long col, ZZ bound);
@@ -173,10 +174,7 @@ vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
 	return output;
 }
 
-mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T) {
-	//TODO make bound an argument
-	ZZ Abound(5);
-	ZZ Ebound(5);
+mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound) {
 	mat_ZZ_p Sstar = getBitMatrix(S);
 	mat_ZZ_p A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),Abound);
 	mat_ZZ_p E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),Ebound);
@@ -184,13 +182,11 @@ mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T) {
 	return Sstar;
 }
 
-
-vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x) {
+vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x) {
 	mat_ZZ_p I;
 	ident(I, x.length());
-	return keySwitch(keySwitchMatrix(I, T), w * x);
+	return keySwitch(keySwitchMatrix(I, T, aBound, eBound), conv<vec_ZZ_p>(w * x));
 }
-
 
 
 int main()
