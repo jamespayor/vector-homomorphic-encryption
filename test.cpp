@@ -184,6 +184,15 @@ mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T) {
 	return Sstar;
 }
 
+
+vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x) {
+	mat_ZZ_p I;
+	ident(I, x.length());
+	return keySwitch(keySwitchMatrix(I, T), w * x);
+}
+
+
+
 int main()
 {
 	ZZ_p::init(q);
