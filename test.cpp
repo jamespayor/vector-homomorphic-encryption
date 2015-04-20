@@ -11,6 +11,7 @@ using namespace std;
 using namespace NTL;
 
 const ZZ w(12345), q((1LL << 31LL) - 1LL);
+const int l = 34;
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
@@ -43,15 +44,24 @@ mat_ZZ_p getRandomMatrix(int n, int m);
 // returns c*
 vec_ZZ_p getBitVector(vec_ZZ_p c) {
 	vec_ZZ_p result;
-	result.SetLength(c.length() * l);
-	for(int i = 0; i < c.length())
+	int length = c.length();
+	result.SetLength(length * l);
+	for(int i = 0; i < length; ++i) {
+		ZZ value = rep(c[i]);
+		for(int j = 0; j < l; ++j) {
+			result[i * l + j] = bit(value, j);
+		}
+	}
+	return result;
 }
 
 
 
 // returns S
 mat_ZZ_p getSecretKey(mat_ZZ_p T) {
-	
+	mat_ZZ_p I;
+	ident(I, T.NumRows());
+	return hCat(I, T);
 }
 
 
@@ -64,14 +74,14 @@ mat_ZZ_p hCat(mat_ZZ_p A, mat_ZZ_p B) {
 	
 	// Copy A
 	for(int i = 0; i < rows; ++i) {
-		for(int j = 0; j < cols; ++j) {
+		for(int j = 0; j < colsA; ++j) {
 			result[i][j] = A[i][j];
 		}
 	}
 
 	// Copy B
 	for(int i = 0; i < rows; ++i) {
-		for(int j = 0; j < cols; ++j) {
+		for(int j = 0; j < colsB; ++j) {
 			result[i][colsA + j] = B[i][j];
 		}
 	}
