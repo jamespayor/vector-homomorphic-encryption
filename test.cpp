@@ -8,7 +8,7 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ w = 123456789;
+const ZZ w(123456789);
 
 vec_ZZ_p decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
@@ -31,7 +31,31 @@ vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c);
 vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x);
 
 
-mat_ZZ_p getRandomMatrix(int m, int n);
+mat_ZZ_p getRandomMatrix(int row, int col, int bound);
+
+
+
+
+
+
+// finds c* then returns Mc*
+vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c){
+    vec_ZZ_p cstar = getBitVector(c);
+    return M * cstar;
+}
+
+
+mat_ZZ_p getRandomMatrix(int row, int col, int bound){
+    mat_ZZ_p A;
+    A.SetDims(row, col);
+    for (int i=0; i<row; ++i){
+        for (int j=0; j<col; ++j){
+            A[i][j] = RandomBnd(bound);
+        }
+    }
+    return A;
+}
+
 
 int main()
 {
