@@ -114,6 +114,12 @@ vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
 	return output;
 }
 
+mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T) {
+	vec_ZZ_p cstar = getBitVector(S);
+	mat_ZZ_p Sstar = getBitMatrix(S);
+	mat_ZZ_p M = vCat(Sstar + E);
+}
+
 int main()
 {
 	ZZ_p::init(q);
