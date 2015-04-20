@@ -75,7 +75,7 @@ mat_ZZ_p getBitMatrix(mat_ZZ_p S) {
 	powers.SetLength(l);
 	powers[0] = 1;
 	for(int i = 0; i < l - 1; ++i) {
-		powers[i+1] = powers[i] << 1;
+		powers[i+1] = powers[i]*2;
 	}
 
 	for(int i = 0; i < rows; ++i) {
