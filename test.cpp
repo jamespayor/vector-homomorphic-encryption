@@ -14,7 +14,7 @@ vec_ZZ_p decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
 // returns c*
 vec_ZZ_p getBitVector(vec_ZZ_p c);
-
+//
 // returns S*
 mat_ZZ_p getBitMatrix(mat_ZZ_p S);
 
