@@ -118,7 +118,7 @@ vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
 	vec_ZZ_p Sc = S*c;
 	vec_ZZ output;
 	output.SetLength(Sc.length());
-	for (unsigned int i=0; i<Sc.length(); i++) {
+	for (int i=0; i<Sc.length(); i++) {
 		output[i] = (rep(Sc[i])+w/2)/w;
 	}
 	return output;
@@ -126,6 +126,9 @@ vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
 
 mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T) {
 	mat_ZZ_p Sstar = getBitMatrix(S);
+	ZZ m = Sstar.NumRows();
+	ZZ nl = Sstar.NumCols();
+	mat_ZZ_p A = getRandomMatrix(T.NumCols(),nl);
 	//mat_ZZ_p M = vCat(Sstar + E - T*A);
 	return Sstar;
 }
