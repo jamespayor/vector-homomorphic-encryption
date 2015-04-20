@@ -28,7 +28,7 @@ mat_ZZ_p getBitMatrix(mat_ZZ_p S);
 mat_ZZ_p getSecretKey(mat_ZZ_p T);
 
 // returns M
-mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, long Abound, long Ebound);
+mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound);
 
 // finds c* then returns Mc*
 vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c);
@@ -173,7 +173,7 @@ vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
 	return output;
 }
 
-mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, long Abound, long Ebound) {
+mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound) {
 	mat_ZZ_p Sstar = getBitMatrix(S);
 	mat_ZZ_p A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),Abound);
 	mat_ZZ_p E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),Ebound);
