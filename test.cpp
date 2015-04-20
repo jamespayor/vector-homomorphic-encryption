@@ -4,14 +4,16 @@
 #include <NTL/ZZ.h>
 #include <NTL/vec_ZZ_p.h>
 #include <NTL/vec_ZZ.h>
+#include <cmath>
 
 
 using namespace std;
 using namespace NTL;
 
-const ZZ w(123456789), l(34);
+const ZZ w(12345), q((1LL << 31LL) - 1LL);
+const int l = 34;
 
-vec_ZZ_p decrypt(mat_ZZ_p S, vec_ZZ_p c);
+vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
 mat_ZZ_p hCat(mat_ZZ_p A, mat_ZZ_p B);
 mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B);
@@ -65,16 +67,25 @@ mat_ZZ_p getRandomMatrix(int row, int col, int bound){
 
 // returns c*
 vec_ZZ_p getBitVector(vec_ZZ_p c) {
-//	vec_ZZ_p result;
-//	result.SetLength(c.length() * l);
-//	for(int i = 0; i < c.length())
+	vec_ZZ_p result;
+	int length = c.length();
+	result.SetLength(length * l);
+	for(int i = 0; i < length; ++i) {
+		ZZ value = rep(c[i]);
+		for(int j = 0; j < l; ++j) {
+			result[i * l + j] = bit(value, j);
+		}
+	}
+	return result;
 }
 
 
 
 // returns S
 mat_ZZ_p getSecretKey(mat_ZZ_p T) {
-
+	mat_ZZ_p I;
+	ident(I, T.NumRows());
+	return hCat(I, T);
 }
 
 
@@ -126,9 +137,26 @@ mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B) {
 	return result;
 }
 
+
+vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
+	vec_ZZ_p Sc = S*c;
+	vec_ZZ output;
+	output.SetLength(Sc.length());
+	for (unsigned int i=0; i<Sc.length(); i++) {
+		output[i] = (rep(Sc[i])+w/2)/w;
+	}
+	return output;
+}
+
+mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T) {
+	mat_ZZ_p Sstar = getBitMatrix(S);
+	//mat_ZZ_p M = vCat(Sstar + E - T*A);
+	return Sstar;
+}
+
 int main()
 {
-
+	ZZ_p::init(q);
    return 0;
 }
 
