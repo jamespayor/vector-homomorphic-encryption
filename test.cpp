@@ -182,7 +182,7 @@ mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound) {
 	mat_ZZ_p A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),Abound);
 	mat_ZZ_p E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),Ebound);
 	mat_ZZ_p M = vCat(Sstar + E - T*A, A);
-	return Sstar;
+	return M;
 }
 
 vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x) {
