@@ -34,7 +34,7 @@ mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound);
 vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c);
 
 // as described, treating I as the secret key and wx as ciphertext
-vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x);
+vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x);
 
 
 mat_ZZ_p getRandomMatrix(long row, long col, long bound);
@@ -181,13 +181,11 @@ mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound) {
 	return Sstar;
 }
 
-
-vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x) {
+vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x) {
 	mat_ZZ_p I;
 	ident(I, x.length());
-	return keySwitch(keySwitchMatrix(I, T), w * x);
+	return keySwitch(keySwitchMatrix(I, T), conv<vec_ZZ_p>(w * x));
 }
-
 
 
 int main()
