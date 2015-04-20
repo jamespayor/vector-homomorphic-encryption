@@ -149,11 +149,13 @@ vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
 }
 
 mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T) {
+	//TODO make bound an argument
+	long Abound = 5;
+	long Ebound = 5;
 	mat_ZZ_p Sstar = getBitMatrix(S);
-	ZZ m = Sstar.NumRows();
-	ZZ nl = Sstar.NumCols();
-	mat_ZZ_p A = getRandomMatrix(T.NumCols(),nl);
-	//mat_ZZ_p M = vCat(Sstar + E - T*A);
+	mat_ZZ_p A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),Abound);
+	mat_ZZ_p E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),Ebound);
+	mat_ZZ_p M = vCat(Sstar + E - T*A, A);
 	return Sstar;
 }
 
