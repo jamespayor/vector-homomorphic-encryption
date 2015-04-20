@@ -10,8 +10,8 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ w(12345), q((1LL << 31LL) - 1LL);
-const ZZ aBound(12345), eBound(100);
+const ZZ w(134503000), q = w * w * w * w;
+const ZZ aBound(12345), eBound(0);
 const int l = 34;
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
@@ -165,14 +165,11 @@ mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B) {
 
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
-	cout << S.NumRows() << ' ' << S.NumCols() << endl;
-	cout << c.length() << endl << endl;
-
 	vec_ZZ_p Sc = S*c;
 	vec_ZZ output;
 	output.SetLength(Sc.length());
 	for (int i=0; i<Sc.length(); i++) {
-		output[i] = (rep(Sc[i])+w/2)/w;
+		output[i] = (rep(Sc[i])+(w+1)/2)/w;
 	}
 	return output;
 }
@@ -195,21 +192,21 @@ vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x) {
 int main()
 {
 	ZZ_p::init(q);
-	mat_ZZ_p T = getRandomMatrix(3, 3, aBound);
 	
-	cout << "1" << endl;
 	vec_ZZ d;
-	d.SetLength(3);
-	d[0] = 1;
-	d[1] = 5;
-	d[2] = 3;
+	const int N = 30;
+	d.SetLength(N);
+	for(int i = 0; i < N; ++i) {
+		d[i] = RandomBnd(10000);
+	}
 	
-	cout << "2" << endl;
+	mat_ZZ_p T = getRandomMatrix(d.length(), d.length(), aBound);
+
 	vec_ZZ_p c = encrypt(T, d);
 	
-	cout << "3" << endl;
 	vec_ZZ x = decrypt(getSecretKey(T), c);
 	
+	cout << d << endl;
 	cout << x << endl;
 }
 
