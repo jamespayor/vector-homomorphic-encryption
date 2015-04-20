@@ -37,7 +37,7 @@ vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c);
 vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x);
 
 
-mat_ZZ_p getRandomMatrix(int row, int col, int bound);
+mat_ZZ_p getRandomMatrix(long row, long col, long bound);
 
 
 
@@ -51,12 +51,12 @@ vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c){
 }
 
 
-mat_ZZ_p getRandomMatrix(int row, int col, int bound){
+mat_ZZ_p getRandomMatrix(long row, long col, long bound){
     mat_ZZ_p A;
     A.SetDims(row, col);
     for (int i=0; i<row; ++i){
         for (int j=0; j<col; ++j){
-            A[i][j] = (ZZ_p)RandomBnd((long)bound);
+            A[i][j] = (ZZ_p)RandomBnd(bound);
         }
     }
     return A;
