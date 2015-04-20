@@ -20,7 +20,7 @@ mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B);
 
 // returns c*
 vec_ZZ_p getBitVector(vec_ZZ_p c);
-//
+
 // returns S*
 mat_ZZ_p getBitMatrix(mat_ZZ_p S);
 
@@ -37,7 +37,7 @@ vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c);
 vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x);
 
 
-mat_ZZ_p getRandomMatrix(int row, int col, int bound);
+mat_ZZ_p getRandomMatrix(long row, long col, long bound);
 
 
 
@@ -51,18 +51,43 @@ vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c){
 }
 
 
-mat_ZZ_p getRandomMatrix(int row, int col, int bound){
+mat_ZZ_p getRandomMatrix(long row, long col, long bound){
     mat_ZZ_p A;
     A.SetDims(row, col);
     for (int i=0; i<row; ++i){
         for (int j=0; j<col; ++j){
-            A[i][j] = (ZZ_p)RandomBnd((long)bound);
+            A[i][j] = (ZZ_p)RandomBnd(bound);
         }
     }
     return A;
 }
 
 
+
+
+// returns S*
+mat_ZZ_p getBitMatrix(mat_ZZ_p S) {
+	mat_ZZ_p result;
+	int rows = S.NumRows(), cols = S.NumCols();
+	result.SetDims(rows, l * cols);
+	
+	vec_ZZ_p powers;
+	powers.SetLength(l);
+	powers[0] = 1;
+	for(int i = 0; i < l - 1; ++i) {
+		powers[i+1] = powers[i] << 1;
+	}
+
+	for(int i = 0; i < rows; ++i) {
+		for(int j = 0; j < cols; ++j) {
+			for(int k = 0; k < l; ++k) {
+				result[i][j*l + k] = S[i][j] * powers[k];
+			}
+		}
+	}
+
+	return result;
+}
 
 
 // returns c*
