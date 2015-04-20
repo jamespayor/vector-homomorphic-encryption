@@ -11,6 +11,7 @@ using namespace std;
 using namespace NTL;
 
 const ZZ w(12345), q((1LL << 31LL) - 1LL);
+const ZZ aBound(12345), eBound(100);
 const int l = 34;
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
@@ -184,7 +185,7 @@ mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound) {
 vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x) {
 	mat_ZZ_p I;
 	ident(I, x.length());
-	return keySwitch(keySwitchMatrix(I, T), conv<vec_ZZ_p>(w * x));
+	return keySwitch(keySwitchMatrix(I, T, aBound, eBound), conv<vec_ZZ_p>(w * x));
 }
 
 
