@@ -165,6 +165,9 @@ mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B) {
 
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
+	cout << S.NumRows() << ' ' << S.NumCols() << endl;
+	cout << c.length() << endl << endl;
+
 	vec_ZZ_p Sc = S*c;
 	vec_ZZ output;
 	output.SetLength(Sc.length());
@@ -192,6 +195,21 @@ vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x) {
 int main()
 {
 	ZZ_p::init(q);
-   return 0;
+	mat_ZZ_p T = getRandomMatrix(3, 3, aBound);
+	
+	cout << "1" << endl;
+	vec_ZZ d;
+	d.SetLength(3);
+	d[0] = 1;
+	d[1] = 5;
+	d[2] = 3;
+	
+	cout << "2" << endl;
+	vec_ZZ_p c = encrypt(T, d);
+	
+	cout << "3" << endl;
+	vec_ZZ x = decrypt(getSecretKey(T), c);
+	
+	cout << x << endl;
 }
 
