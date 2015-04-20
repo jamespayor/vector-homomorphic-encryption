@@ -37,7 +37,7 @@ vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c);
 vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x);
 
 
-mat_ZZ_p getRandomMatrix(long row, long col, long bound);
+mat_ZZ_p getRandomMatrix(long row, long col, ZZ bound);
 
 
 
@@ -51,12 +51,12 @@ vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c){
 }
 
 
-mat_ZZ_p getRandomMatrix(long row, long col, long bound){
+mat_ZZ_p getRandomMatrix(long row, long col, ZZ bound){
     mat_ZZ_p A;
     A.SetDims(row, col);
     for (int i=0; i<row; ++i){
         for (int j=0; j<col; ++j){
-            A[i][j] = (ZZ_p)RandomBnd(bound);
+            A[i][j] = conv<ZZ_p>(RandomBnd(bound));
         }
     }
     return A;
@@ -70,7 +70,7 @@ mat_ZZ_p getBitMatrix(mat_ZZ_p S) {
 	mat_ZZ_p result;
 	int rows = S.NumRows(), cols = S.NumCols();
 	result.SetDims(rows, l * cols);
-	
+
 	vec_ZZ_p powers;
 	powers.SetLength(l);
 	powers[0] = 1;
@@ -175,8 +175,8 @@ vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
 
 mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T) {
 	//TODO make bound an argument
-	long Abound = 5;
-	long Ebound = 5;
+	ZZ Abound(5);
+	ZZ Ebound(5);
 	mat_ZZ_p Sstar = getBitMatrix(S);
 	mat_ZZ_p A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),Abound);
 	mat_ZZ_p E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),Ebound);
