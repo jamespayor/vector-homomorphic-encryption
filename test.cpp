@@ -55,15 +55,16 @@ vec_ZZ_p lntr(mat_ZZ_p M, vec_ZZ_p c);
 
 // returns M, the key switch matrix from GS to S,
 // to be sent to server
-mat_ZZ_p lntrClient(mat_ZZ_p S, mat_ZZ_p G);
+mat_ZZ_p lntrClient(mat_ZZ_p T, mat_ZZ_p G);
 
 //
 vec_ZZ_p inprod(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M);
 
 // returns M, the key switch matrix from vec(S^t S) to S,
 // to be sent to the server
-mat_ZZ_p inprodClient(mat_ZZ_p S);
+mat_ZZ_p inprodClient(mat_ZZ_p T);
 
+// returns a column vector
 mat_ZZ_p vectorize(mat_ZZ_p M);
 
 
@@ -221,7 +222,7 @@ vec_ZZ_p lntr(mat_ZZ_p M, vec_ZZ_p c){
     return M * c;
 }
 
-mat_ZZ_p clientLntr(mat_ZZ_p T, mat_ZZ_p G){
+mat_ZZ_p lntrClient(mat_ZZ_p T, mat_ZZ_p G){
 	mat_ZZ_p I;
 	ident(I, T.NumRows());
     mat_ZZ_p S = hCat(I, T);
