@@ -12,7 +12,7 @@ using namespace NTL;
 
 const ZZ w(134503000), q = w * w * w * w;
 const ZZ aBound(12345), eBound(0);
-const int l = 34;
+const int l = 100;
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
