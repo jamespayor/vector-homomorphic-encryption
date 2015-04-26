@@ -43,6 +43,25 @@ mat_ZZ_p getRandomMatrix(long row, long col, ZZ bound);
 
 
 
+// server side addition with same secret key
+vec_ZZ_p addn(vec_ZZ_p c1, vec_ZZ_p c2);
+
+// server side linear transformation,
+// returns S(Gx) given c=Sx and M (key switch matrix from GS to S)
+vec_ZZ_p lntr(mat_ZZ_p M vec_ZZ_p c);
+
+// returns M, the key switch matrix from GS to S,
+// to be sent to server
+mat_ZZ_p lntrClient(mat_ZZ_p S, mat_ZZ_p G);
+
+//
+vec_ZZ_p inprod(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M);
+
+// returns M, the key switch matrix from vec(S^t S) to S,
+// to be sent to the server
+mat_ZZ_p inprodClient(mat_ZZ_p S);
+
+mat_ZZ_p vectorize(mat_ZZ_p M);
 
 
 // finds c* then returns Mc*
@@ -189,23 +208,90 @@ vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x) {
 }
 
 
+
+
+vec_ZZ_p addn(vec_ZZ_p c1, vec_ZZ_p c2){
+    return c1 + c2;
+}
+
+vec_ZZ_p lntr(mat_ZZ_p M, vec_ZZ_p c){
+    return M * c
+}
+
+mat_ZZ_p clientLntr(mat_ZZ_p T, mat_ZZ_p G){
+    mat_ZZ_p S = hCat(I, T);
+    return keySwitchMatrix(G * S, T, aBound, eBound);
+}
+
+
+vec_ZZ_p inprod(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
+    mat_ZZ_p cc1;
+    mat_ZZ_p cc2;
+    mat_ZZ_p cc;
+
+    cc1.SetDims(c1.length(), 1);
+    for (int i=0; i<c1.length(); ++i){
+        cc1[i][0] = c1[i];
+    }
+    cc2.SetDims(1, c2.length());
+    for (int i=0; i<c2.length(); ++i){
+        cc1[0][i] = c2[i];
+    }
+    cc = (vectorize(cc1 * cc2)(w+1)/2)/w;
+    return M * cc;
+}
+
+mat_ZZ_p inprodClient(mat_ZZ_p T){
+    mat_ZZ_p S = hCat(I, T);
+    mat_ZZ_p vsts;
+    mat_ZZ_p M;
+    vsts = vectorize(transpose(S) * S);
+    M = keySwitchMatrix(vsts, T, aBound, eBound);
+}
+
+
+mat_ZZ_p vectorize(mat_ZZ_p M){
+    mat_ZZ_p ans;
+    ans.SetDims(M.NumRows() * M.NumCols(), 1);
+    for (int i=0; i<M.NumRows(); ++i){
+        for (int j=0; j<M.NumCols(); ++j){
+            ans[i*M.NumCols() + j][0] = M[i][j]
+        }
+    }
+    return ans;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main()
 {
 	ZZ_p::init(q);
-	
+
 	vec_ZZ d;
 	const int N = 30;
 	d.SetLength(N);
 	for(int i = 0; i < N; ++i) {
 		d[i] = RandomBnd(10000);
 	}
-	
+
 	mat_ZZ_p T = getRandomMatrix(d.length(), d.length(), aBound);
 
 	vec_ZZ_p c = encrypt(T, d);
-	
+
 	vec_ZZ x = decrypt(getSecretKey(T), c);
-	
+
 	cout << d << endl;
 	cout << x << endl;
 }
