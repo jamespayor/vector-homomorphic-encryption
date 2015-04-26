@@ -3,7 +3,7 @@ INNER_PRODUCT = '*'
 ADD = '+'
 
 def tupleToVec(t):
-	if type(t) is int: return str(t)
+	if type(t) is int: return str(t).strip('L')
 	return '[%s]' % ' '.join(map(tupleToVec,t))
 
 def vecToTuple(v):
