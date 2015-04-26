@@ -569,6 +569,3 @@ yourself
 yourselves
 z
 zero
-reuter
-reuter’s
-reuters
