@@ -51,7 +51,7 @@ vec_ZZ_p addn(vec_ZZ_p c1, vec_ZZ_p c2);
 
 // server side linear transformation,
 // returns S(Gx) given c=Sx and M (key switch matrix from GS to S)
-vec_ZZ_p lntr(mat_ZZ_p M vec_ZZ_p c);
+vec_ZZ_p lntr(mat_ZZ_p M, vec_ZZ_p c);
 
 // returns M, the key switch matrix from GS to S,
 // to be sent to server
@@ -218,10 +218,12 @@ vec_ZZ_p addn(vec_ZZ_p c1, vec_ZZ_p c2){
 }
 
 vec_ZZ_p lntr(mat_ZZ_p M, vec_ZZ_p c){
-    return M * c
+    return M * c;
 }
 
 mat_ZZ_p clientLntr(mat_ZZ_p T, mat_ZZ_p G){
+	mat_ZZ_p I;
+	ident(I, T.NumRows());
     mat_ZZ_p S = hCat(I, T);
     return keySwitchMatrix(G * S, T, aBound, eBound);
 }
@@ -240,16 +242,24 @@ vec_ZZ_p inprod(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
     for (int i=0; i<c2.length(); ++i){
         cc1[0][i] = c2[i];
     }
-    cc = (vectorize(cc1 * cc2)(w+1)/2)/w;
-    return M * cc;
+    cc = vectorize(cc1 * cc2);
+
+    vec_ZZ_p output;
+	output.SetLength(cc.NumRows());
+	for (int i=0; i<cc.NumRows(); i++) {
+		output[i] = conv<ZZ_p>((rep(cc[i][0])+(w+1)/2)/w);
+	}
+    return M * output;
 }
 
 mat_ZZ_p inprodClient(mat_ZZ_p T){
+	mat_ZZ_p I;
+	ident(I, T.NumRows());
     mat_ZZ_p S = hCat(I, T);
     mat_ZZ_p vsts;
-    mat_ZZ_p M;
+
     vsts = vectorize(transpose(S) * S);
-    M = keySwitchMatrix(vsts, T, aBound, eBound);
+    return keySwitchMatrix(vsts, T, aBound, eBound);
 }
 
 
@@ -258,7 +268,7 @@ mat_ZZ_p vectorize(mat_ZZ_p M){
     ans.SetDims(M.NumRows() * M.NumCols(), 1);
     for (int i=0; i<M.NumRows(); ++i){
         for (int j=0; j<M.NumCols(); ++j){
-            ans[i*M.NumCols() + j][0] = M[i][j]
+            ans[i*M.NumCols() + j][0] = M[i][j];
         }
     }
     return ans;
@@ -285,16 +295,19 @@ int main()
 	string line;
 	stack<vec_ZZ_p> vectors;
 
-	while(getLine(cin, line)) {
-		line = trim(line);
-		if (line == "+") {
+	while(getline(cin, line)) {
+		if (line[0] == '+') {
 			vec_ZZ_p c1 = vectors.top(); vectors.pop();
 			vec_ZZ_p c2 = vectors.top(); vectors.pop();
 			vectors.push(c1 + c2);
-		} else if (line == "*") {
+		} else if (line[0] == '*') {
 			vec_ZZ_p c1 = vectors.top(); vectors.pop();
 			vec_ZZ_p c2 = vectors.top(); vectors.pop();
-			vectors.push(c1 * c2);
+			ZZ_p prod = c1 * c2;
+			vec_ZZ_p c;
+			c.SetLength(1);
+			c[0] = prod;
+			vectors.push(c);
 		} else {
 			stringstream stream(line);
 			vec_ZZ_p c;
@@ -303,9 +316,9 @@ int main()
 		}
 	}
 
-	while(stack.size()) {
-		cout << stack.top() << endl;
-		stack.pop();
+	while(vectors.size()) {
+		cout << vectors.top() << endl;
+		vectors.pop();
 	}
 
 	/*
