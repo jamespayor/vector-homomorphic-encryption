@@ -218,11 +218,11 @@ vec_ZZ_p addn(vec_ZZ_p c1, vec_ZZ_p c2){
     return c1 + c2;
 }
 
-vec_ZZ_p lntr(mat_ZZ_p M, vec_ZZ_p c){
+vec_ZZ_p transform(mat_ZZ_p M, vec_ZZ_p c){
     return M * c;
 }
 
-mat_ZZ_p lntrClient(mat_ZZ_p T, mat_ZZ_p G){
+mat_ZZ_p transformClient(mat_ZZ_p T, mat_ZZ_p G){
 	mat_ZZ_p I;
 	ident(I, T.NumRows());
     mat_ZZ_p S = hCat(I, T);
@@ -230,7 +230,7 @@ mat_ZZ_p lntrClient(mat_ZZ_p T, mat_ZZ_p G){
 }
 
 
-vec_ZZ_p inprod(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
+vec_ZZ_p innerProduct(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
     mat_ZZ_p cc1;
     mat_ZZ_p cc2;
     mat_ZZ_p cc;
@@ -253,7 +253,7 @@ vec_ZZ_p inprod(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
     return M * output;
 }
 
-mat_ZZ_p inprodClient(mat_ZZ_p T){
+mat_ZZ_p innerProductClient(mat_ZZ_p T){
 	mat_ZZ_p I;
 	ident(I, T.NumRows());
     mat_ZZ_p S = hCat(I, T);
