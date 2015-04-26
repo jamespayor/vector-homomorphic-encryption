@@ -1,6 +1,7 @@
-
 from flask import Flask, request
 app = Flask(__name__)
+
+from model import features, probabilities
 
 @app.route('/')
 def route_index():
@@ -16,11 +17,6 @@ def route_index():
     		</body>
     	</html>
     	'''
-
-features = {
-	'medicine': (0, 1),
-	'report': (1, 2),
-}
 
 @app.route('/features', methods=['GET'])
 def route_features():
