@@ -1,3 +1,5 @@
+#include <iostream>
+#include <sstream>
 #include <cassert>
 #include <NTL/mat_ZZ_p.h>
 #include <NTL/ZZ_p.h>
@@ -5,6 +7,7 @@
 #include <NTL/vec_ZZ_p.h>
 #include <NTL/vec_ZZ.h>
 #include <cmath>
+#include <stack>
 
 
 using namespace std;
@@ -279,6 +282,33 @@ int main()
 {
 	ZZ_p::init(q);
 
+	string line;
+	stack<vec_ZZ_p> vectors;
+
+	while(getLine(cin, line)) {
+		line = trim(line);
+		if (line == "+") {
+			vec_ZZ_p c1 = vectors.top(); vectors.pop();
+			vec_ZZ_p c2 = vectors.top(); vectors.pop();
+			vectors.push(c1 + c2);
+		} else if (line == "*") {
+			vec_ZZ_p c1 = vectors.top(); vectors.pop();
+			vec_ZZ_p c2 = vectors.top(); vectors.pop();
+			vectors.push(c1 * c2);
+		} else {
+			stringstream stream(line);
+			vec_ZZ_p c;
+			stream >> c;
+			vectors.push(c);
+		}
+	}
+
+	while(stack.size()) {
+		cout << stack.top() << endl;
+		stack.pop();
+	}
+
+	/*
 	vec_ZZ d;
 	const int N = 30;
 	d.SetLength(N);
@@ -294,5 +324,6 @@ int main()
 
 	cout << d << endl;
 	cout << x << endl;
+	*/
 }
 
