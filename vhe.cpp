@@ -57,12 +57,12 @@ vec_ZZ_p linearTransform(mat_ZZ_p M, vec_ZZ_p c);
 // to be sent to server
 mat_ZZ_p linearTransformClient(mat_ZZ_p T, mat_ZZ_p G);
 
-//
-vec_ZZ_p inprod(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M);
+// computes an inner product, given two ciphertexts and the keyswitch matrix
+vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, mat_ZZ_p M);
 
 // returns M, the key switch matrix from vec(S^t S) to S,
 // to be sent to the server
-mat_ZZ_p inprodClient(mat_ZZ_p T);
+mat_ZZ_p innerProdClient(mat_ZZ_p T);
 
 // returns a column vector
 mat_ZZ_p vectorize(mat_ZZ_p M);
@@ -315,7 +315,7 @@ mat_ZZ_p vectorize(mat_ZZ_p M){
 int main()
 {
     ZZ_p::init(q);
-/*
+
     stack<vec_ZZ_p> vectors;
     stack<mat_ZZ_p> matrices;
 
@@ -360,16 +360,59 @@ int main()
             mat_ZZ_p m = matrices.top(); matrices.pop();
             vectors.push(innerProd(v1, v2, m));
 
+        } else if (operation == "key-switch") {
+            vec_ZZ_p v = vectors.top(); vectors.pop();
+            mat_ZZ_p m = matrices.top(); matrices.pop();
+            vectors.push(keySwitch(m, v));
+
+        } else if (operation == "random-matrix") {
+            int rows, cols;
+            cin >> rows >> cols;
+            ZZ_p bound;
+            cin >> bound;
+            matrices.push(getRandomMatrix(rows, cols, bound));
+
+        } else if (operation == "identity") {
+            int rows;
+            cin >> rows;
+            mat_ZZ_p I;
+            getIdent(I, rows);
+            matrices.push(I);
+
+        } else if (operation == "key-switch-matrix") {
+            mat_ZZ_p T = matrices.top(); matrices.pop();
+            mat_ZZ_p S = matrices.top(); matrices.pop();
+            matrices.push(keySwitchMatrix(S, T, aBound, eBound));
+
         }
 
+        mat_ZZ_p getSecretKey(mat_ZZ_p T);
+        vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
+        vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x);
+
     }
 
+    cout << vectors.size() << endl;
+    stack<vec_ZZ_p> vectors2;
     while (vectors.size()) {
-        cout << vectors.top(); vectors.pop();
+        vectors2.push(vectors.top()); vectors.pop();
     }
-*/
+    while (vectors2.size()) {
+        cout << vectors2.top() << endl; vectors2.pop();
+    }
+
+    cout << matrices.size() << endl;
+    stack<mat_ZZ_p> matrices2;
+    while (matrices.size()) {
+        matrices2.push(matrices.top()); matrices.pop();
+    }
+    while (matrices2.size()) {
+        cout << matrices.top() << endl; matrices.pop();
+    }
 
 
+// Testing:
+/*
     const int N = 30;
 	vec_ZZ x1;
 	vec_ZZ x2;
@@ -384,7 +427,7 @@ int main()
 	mat_ZZ_p T = getRandomMatrix(N, N, aBound);
 	vec_ZZ_p c1 = encrypt(T, x1);
 	vec_ZZ_p c2 = encrypt(T, x2);
-
+*/
 
 //// testing for addition:
 //	vec_ZZ_p cplus;
