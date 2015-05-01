@@ -359,11 +359,20 @@ int main()
             mat_ZZ_p m = matrices.top(); matrices.pop();
             vectors.push(linearTransform(m, v));
 
+        } else if (operation == "linear-transform-key-switch") {
+            mat_ZZ_p T = matrices.top(); matrices.pop();
+            mat_ZZ_p G = matrices.top(); matrices.pop();
+            matrices.push(linearTransformClient(T, G));
+
         } else if (operation == "inner-product") {
             vec_ZZ_p v1 = vectors.top(); vectors.pop();
             vec_ZZ_p v2 = vectors.top(); vectors.pop();
             mat_ZZ_p m = matrices.top(); matrices.pop();
             vectors.push(innerProd(v1, v2, m));
+
+        } else if (operation == "inner-product-key-switch") {
+            mat_ZZ_p T = matrices.top(); matrices.pop();
+            matrices.push(innerProdClient(T));
 
         } else if (operation == "key-switch") {
             vec_ZZ_p v = vectors.top(); vectors.pop();
