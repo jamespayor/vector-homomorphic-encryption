@@ -429,7 +429,7 @@ int main()
         matrices2.push(matrices.top()); matrices.pop();
     }
     while (matrices2.size()) {
-        cout << matrices.top() << endl; matrices.pop();
+        cout << matrices2.top() << endl; matrices2.pop();
     }
 
 
