@@ -10,12 +10,11 @@
 #include <cmath>
 #include <stack>
 
-
 using namespace std;
 using namespace NTL;
 
 const ZZ w(134503000), q = w * w * w * w * w;
-const ZZ aBound(12345), eBound(0);
+const ZZ aBound(1000), eBound(100);
 const int l = 140;
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
@@ -129,124 +128,124 @@ mat_ZZ_p getRandomMatrix(long row, long col, ZZ bound){
 
 // returns S*
 mat_ZZ_p getBitMatrix(mat_ZZ_p S) {
-	mat_ZZ_p result;
-	int rows = S.NumRows(), cols = S.NumCols();
-	result.SetDims(rows, l * cols);
+    mat_ZZ_p result;
+    int rows = S.NumRows(), cols = S.NumCols();
+    result.SetDims(rows, l * cols);
 
-	vec_ZZ_p powers;
-	powers.SetLength(l);
-	powers[0] = 1;
-	for(int i = 0; i < l - 1; ++i) {
-		powers[i+1] = powers[i]*2;
-	}
+    vec_ZZ_p powers;
+    powers.SetLength(l);
+    powers[0] = 1;
+    for(int i = 0; i < l - 1; ++i) {
+        powers[i+1] = powers[i]*2;
+    }
 
-	for(int i = 0; i < rows; ++i) {
-		for(int j = 0; j < cols; ++j) {
-			for(int k = 0; k < l; ++k) {
-				result[i][j*l + k] = S[i][j] * powers[k];
-			}
-		}
-	}
+    for(int i = 0; i < rows; ++i) {
+        for(int j = 0; j < cols; ++j) {
+            for(int k = 0; k < l; ++k) {
+                result[i][j*l + k] = S[i][j] * powers[k];
+            }
+        }
+    }
 
-	return result;
+    return result;
 }
 
 
 // returns c*
 vec_ZZ_p getBitVector(vec_ZZ_p c) {
-	vec_ZZ_p result;
-	int length = c.length();
-	result.SetLength(length * l);
-	for(int i = 0; i < length; ++i) {
-		ZZ value = rep(c[i]);
-		for(int j = 0; j < l; ++j) {
-			result[i * l + j] = bit(value, j);
-		}
-	}
-	return result;
+    vec_ZZ_p result;
+    int length = c.length();
+    result.SetLength(length * l);
+    for(int i = 0; i < length; ++i) {
+        ZZ value = rep(c[i]);
+        for(int j = 0; j < l; ++j) {
+            result[i * l + j] = bit(value, j);
+        }
+    }
+    return result;
 }
 
 
 
 // returns S
 mat_ZZ_p getSecretKey(mat_ZZ_p T) {
-	mat_ZZ_p I;
-	ident(I, T.NumRows());
-	return hCat(I, T);
+    mat_ZZ_p I;
+    ident(I, T.NumRows());
+    return hCat(I, T);
 }
 
 
 mat_ZZ_p hCat(mat_ZZ_p A, mat_ZZ_p B) {
-	assert(A.NumRows() == B.NumRows());
+    assert(A.NumRows() == B.NumRows());
 
-	int rows = A.NumRows(), colsA = A.NumCols(), colsB = B.NumCols();
-	mat_ZZ_p result;
-	result.SetDims(rows, colsA + colsB);
+    int rows = A.NumRows(), colsA = A.NumCols(), colsB = B.NumCols();
+    mat_ZZ_p result;
+    result.SetDims(rows, colsA + colsB);
 
-	// Copy A
-	for(int i = 0; i < rows; ++i) {
-		for(int j = 0; j < colsA; ++j) {
-			result[i][j] = A[i][j];
-		}
-	}
+    // Copy A
+    for(int i = 0; i < rows; ++i) {
+        for(int j = 0; j < colsA; ++j) {
+            result[i][j] = A[i][j];
+        }
+    }
 
-	// Copy B
-	for(int i = 0; i < rows; ++i) {
-		for(int j = 0; j < colsB; ++j) {
-			result[i][colsA + j] = B[i][j];
-		}
-	}
+    // Copy B
+    for(int i = 0; i < rows; ++i) {
+        for(int j = 0; j < colsB; ++j) {
+            result[i][colsA + j] = B[i][j];
+        }
+    }
 
-	return result;
+    return result;
 }
 
 mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B) {
-	assert(A.NumCols() == B.NumCols());
+    assert(A.NumCols() == B.NumCols());
 
-	int cols = A.NumCols(), rowsA = A.NumRows(), rowsB = B.NumRows();
-	mat_ZZ_p result;
-	result.SetDims(rowsA + rowsB, cols);
+    int cols = A.NumCols(), rowsA = A.NumRows(), rowsB = B.NumRows();
+    mat_ZZ_p result;
+    result.SetDims(rowsA + rowsB, cols);
 
-	// Copy A
-	for(int i = 0; i < rowsA; ++i) {
-		for(int j = 0; j < cols; ++j) {
-			result[i][j] = A[i][j];
-		}
-	}
+    // Copy A
+    for(int i = 0; i < rowsA; ++i) {
+        for(int j = 0; j < cols; ++j) {
+            result[i][j] = A[i][j];
+        }
+    }
 
-	// Copy B
-	for(int i = 0; i < rowsB; ++i) {
-		for(int j = 0; j < cols; ++j) {
-			result[i + rowsA][j] = B[i][j];
-		}
-	}
+    // Copy B
+    for(int i = 0; i < rowsB; ++i) {
+        for(int j = 0; j < cols; ++j) {
+            result[i + rowsA][j] = B[i][j];
+        }
+    }
 
-	return result;
+    return result;
 }
 
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
-	vec_ZZ_p Sc = S*c;
-	vec_ZZ output;
-	output.SetLength(Sc.length());
-	for (int i=0; i<Sc.length(); i++) {
-		output[i] = (rep(Sc[i])+(w+1)/2)/w;
-	}
-	return output;
+    vec_ZZ_p Sc = S*c;
+    vec_ZZ output;
+    output.SetLength(Sc.length());
+    for (int i=0; i<Sc.length(); i++) {
+        output[i] = (rep(Sc[i])+(w+1)/2)/w;
+    }
+    return output;
 }
 
 mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound) {
-	mat_ZZ_p Sstar = getBitMatrix(S);
-	mat_ZZ_p A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),Abound);
-	mat_ZZ_p E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),Ebound);
-	mat_ZZ_p M = vCat(Sstar + E - T*A, A);
-	return M;
+    mat_ZZ_p Sstar = getBitMatrix(S);
+    mat_ZZ_p A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),Abound);
+    mat_ZZ_p E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),Ebound);
+    mat_ZZ_p M = vCat(Sstar + E - T*A, A);
+    return M;
 }
 
 vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x) {
-	mat_ZZ_p I;
-	ident(I, x.length());
-	return keySwitch(keySwitchMatrix(I, T, aBound, eBound), conv<vec_ZZ_p>(w * x));
+    mat_ZZ_p I;
+    ident(I, x.length());
+    return keySwitch(keySwitchMatrix(I, T, aBound, eBound), conv<vec_ZZ_p>(w * x));
 }
 
 
@@ -261,14 +260,14 @@ vec_ZZ_p linearTransform(mat_ZZ_p M, vec_ZZ_p c){
 }
 
 mat_ZZ_p linearTransformClient(mat_ZZ_p T, mat_ZZ_p G){
-	mat_ZZ_p I;
-	ident(I, T.NumRows());
+    mat_ZZ_p I;
+    ident(I, T.NumRows());
     mat_ZZ_p S = hCat(I, T);
     return keySwitchMatrix(G * S, T, aBound, eBound);
 }
 
 
-vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
+vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, mat_ZZ_p M){
     mat_ZZ_p cc1;
     mat_ZZ_p cc2;
     mat_ZZ_p cc;
@@ -284,16 +283,16 @@ vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
     cc = vectorize(cc1 * cc2);
 
     vec_ZZ_p output;
-	output.SetLength(cc.NumRows());
-	for (int i=0; i<cc.NumRows(); i++) {
-		output[i] = conv<ZZ_p>((rep(cc[i][0])+(w+1)/2)/w);
-	}
+    output.SetLength(cc.NumRows());
+    for (int i=0; i<cc.NumRows(); i++) {
+        output[i] = conv<ZZ_p>((rep(cc[i][0])+(w+1)/2)/w);
+    }
     return M * output;
 }
 
 mat_ZZ_p innerProdClient(mat_ZZ_p T){
-	mat_ZZ_p I;
-	ident(I, T.NumRows());
+    mat_ZZ_p I;
+    ident(I, T.NumRows());
     mat_ZZ_p S = hCat(I, T);
     mat_ZZ_p vectorizedSTransposeS = vectorize(transpose(S) * S);
     return keySwitchMatrix(vectorizedSTransposeS, T, aBound, eBound);
@@ -313,51 +312,63 @@ mat_ZZ_p vectorize(mat_ZZ_p M){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 int main()
 {
-	ZZ_p::init(q);
+    ZZ_p::init(q);
 /*
-	string line;
-	stack<vec_ZZ_p> vectors;
+    stack<vec_ZZ_p> vectors;
+    stack<mat_ZZ_p> matrices;
 
-	while(getline(cin, line)) {
-		if (line[0] == '+') {
-			vec_ZZ_p c1 = vectors.top(); vectors.pop();
-			vec_ZZ_p c2 = vectors.top(); vectors.pop();
-			vectors.push(c1 + c2);
-		} else if (line[0] == '*') {
-			vec_ZZ_p c1 = vectors.top(); vectors.pop();
-			vec_ZZ_p c2 = vectors.top(); vectors.pop();
-			ZZ_p prod = c1 * c2;
-			vec_ZZ_p c;
-			c.SetLength(1);
-			c[0] = prod;
-			vectors.push(c);
-		} else {
-			stringstream stream(line);
-			vec_ZZ_p c;
-			stream >> c;
-			vectors.push(c);
-		}
-	}
+    string operation;
+    while (cin >> operation) {
 
-	while(vectors.size()) {
-		cout << vectors.top() << endl;
-		vectors.pop();
-	}
+        if (operation == "vector") {
+            vec_ZZ_p v;
+            cin >> v;
+            vectors.push(v);
+
+        } else if (operation == "matrix") {
+            mat_ZZ_p m;
+            cin >> m;
+            matrices.push(m);
+
+        } else if (operation == "duplicate-vector") {
+            vectors.push(vectors.top());
+
+        } else if (operation == "duplicate-matrix") {
+            matrices.push(matrices.top());
+
+        } else if (operation == "add") {
+            vec_ZZ_p v1 = vectors.top(); vectors.pop();
+            vec_ZZ_p v2 = vectors.top(); vectors.pop();
+            vectors.push(addVectors(v1, v2));
+
+        } else if (operation == "scalar-multiply") {
+            ZZ_p x;
+            cin >> x;
+            vec_ZZ_p v = vectors.top(); vectors.pop();
+            vectors.push(v * x);
+
+        } else if (operation == "linear-transform") {
+            vec_ZZ_p v = vectors.top(); vectors.pop();
+            mat_ZZ_p m = matrices.top(); matrices.pop();
+            vectors.push(linearTransform(m, v));
+
+        } else if (operation == "inner-product") {
+            vec_ZZ_p v1 = vectors.top(); vectors.pop();
+            vec_ZZ_p v2 = vectors.top(); vectors.pop();
+            mat_ZZ_p m = matrices.top(); matrices.pop();
+            vectors.push(innerProd(v1, v2, m));
+
+        }
+
+    }
+
+    while (vectors.size()) {
+        cout << vectors.top(); vectors.pop();
+    }
 */
+
 
     const int N = 30;
 	vec_ZZ x1;
@@ -406,5 +417,7 @@ int main()
 //	cout << xx << endl;
 //	cout << dxx << endl;
 //	cout << xx - dxx << endl;
+
+
 }
 
