@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <NTL/mat_ZZ.h>
 #include <NTL/mat_ZZ_p.h>
 #include <NTL/ZZ_p.h>
 #include <NTL/ZZ.h>
@@ -15,7 +16,7 @@ using namespace NTL;
 
 const ZZ w(134503000), q = w * w * w * w;
 const ZZ aBound(12345), eBound(0);
-const int l = 100;
+const int l = 150;
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
@@ -44,6 +45,8 @@ vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x);
 mat_ZZ_p getRandomMatrix(long row, long col, ZZ bound);
 
 
+// three fundamental operations
+
 
 
 // server side addition with same secret key
@@ -51,22 +54,52 @@ vec_ZZ_p addn(vec_ZZ_p c1, vec_ZZ_p c2);
 
 // server side linear transformation,
 // returns S(Gx) given c=Sx and M (key switch matrix from GS to S)
-vec_ZZ_p lntr(mat_ZZ_p M, vec_ZZ_p c);
+vec_ZZ_p linTr(mat_ZZ_p M, vec_ZZ_p c);
 
 // returns M, the key switch matrix from GS to S,
 // to be sent to server
-mat_ZZ_p lntrClient(mat_ZZ_p T, mat_ZZ_p G);
+mat_ZZ_p linTrClient(mat_ZZ_p T, mat_ZZ_p G);
 
 //
-vec_ZZ_p inprod(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M);
+vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M);
 
 // returns M, the key switch matrix from vec(S^t S) to S,
 // to be sent to the server
-mat_ZZ_p inprodClient(mat_ZZ_p T);
+mat_ZZ_p innerProdClient(mat_ZZ_p T);
 
 // returns a column vector
 mat_ZZ_p vectorize(mat_ZZ_p M);
 
+
+
+
+mat_ZZ tozz(mat_ZZ_p m);
+mat_ZZ_p tozzp(mat_ZZ m);
+
+
+
+
+mat_ZZ tozz(mat_ZZ_p m){
+    mat_ZZ A;
+    A.SetDims(m.NumRows(), m.NumCols());
+    for (int i=0; i<m.NumRows(); ++i){
+        for (int j=0; j<m.NumCols(); ++j){
+            A[i][j] = conv<ZZ>(m[i][j]);
+        }
+    }
+    return A;
+}
+
+mat_ZZ_p tozzp(mat_ZZ m){
+    mat_ZZ_p A;
+    A.SetDims(m.NumRows(), m.NumCols());
+    for (int i=0; i<m.NumRows(); ++i){
+        for (int j=0; j<m.NumCols(); ++j){
+            A[i][j] = conv<ZZ_p>(m[i][j]);
+        }
+    }
+    return A;
+}
 
 // finds c* then returns Mc*
 vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c){
@@ -218,14 +251,14 @@ vec_ZZ_p addn(vec_ZZ_p c1, vec_ZZ_p c2){
     return c1 + c2;
 }
 
-vec_ZZ_p transform(mat_ZZ_p M, vec_ZZ_p c){
-    return M * c;
+vec_ZZ_p linTr(mat_ZZ_p M, vec_ZZ_p c){
+//	cout << M << endl;
+//	cout << getBitVector(c) << endl;
+    return M * getBitVector(c);
 }
 
-mat_ZZ_p transformClient(mat_ZZ_p T, mat_ZZ_p G){
-	mat_ZZ_p I;
-	ident(I, T.NumRows());
-    mat_ZZ_p S = hCat(I, T);
+mat_ZZ_p linTrClient(mat_ZZ_p T, mat_ZZ_p G){
+    mat_ZZ_p S = getSecretKey(T);
     return keySwitchMatrix(G * S, T, aBound, eBound);
 }
 
@@ -254,9 +287,7 @@ vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
 }
 
 mat_ZZ_p innerProdClient(mat_ZZ_p T){
-	mat_ZZ_p I;
-	ident(I, T.NumRows());
-    mat_ZZ_p S = hCat(I, T);
+    mat_ZZ_p S = getSecretKey(T);
     mat_ZZ_p vsts;
 
     vsts = vectorize(transpose(S) * S);
@@ -293,6 +324,7 @@ int main()
 {
 	ZZ_p::init(q);
 
+/*
 	string line;
 	stack<vec_ZZ_p> vectors;
 
@@ -321,23 +353,81 @@ int main()
 		cout << vectors.top() << endl;
 		vectors.pop();
 	}
+*/
 
-	/*
-	vec_ZZ d;
 	const int N = 30;
-	d.SetLength(N);
+	vec_ZZ x1;
+	vec_ZZ x2;
+	x1.SetLength(N);
+	x2.SetLength(N);
 	for(int i = 0; i < N; ++i) {
-		d[i] = RandomBnd(10000);
+		x1[i] = RandomBnd(10000);
+		x2[i] = RandomBnd(10000);
 	}
+	cout << x1 << endl;
+	cout << x2 << endl;
+	mat_ZZ_p T = getRandomMatrix(N, N, aBound);
+	vec_ZZ_p c1 = encrypt(T, x1);
+	vec_ZZ_p c2 = encrypt(T, x2);
 
-	mat_ZZ_p T = getRandomMatrix(d.length(), d.length(), aBound);
 
-	vec_ZZ_p c = encrypt(T, d);
+//// server side addition with same secret key
+//vec_ZZ_p addn(vec_ZZ_p c1, vec_ZZ_p c2);
+// testing for addition:
+//	vec_ZZ_p cplus;
+//	vec_ZZ dxplus;
+//	vec_ZZ xplus;
+//
+//	cplus = addn(c1, c2);
+//	dxplus = decrypt(getSecretKey(T), cplus);
+//	xplus = x1 + x2;
+//
+//	cout << xplus << endl;
+//	cout << dxplus << endl;
+//	cout << xplus - dxplus << endl;
 
-	vec_ZZ x = decrypt(getSecretKey(T), c);
 
-	cout << d << endl;
-	cout << x << endl;
-	*/
+//// server side linear transformation,
+//// returns S(Gx) given c=Sx and M (key switch matrix from GS to S)
+//vec_ZZ_p linTr(mat_ZZ_p M, vec_ZZ_p c);
+//
+//// returns M, the key switch matrix from GS to S,
+//// to be sent to server
+//mat_ZZ_p linTrClient(mat_ZZ_p T, mat_ZZ_p G);
+// testing for linear transform
+
+    mat_ZZ_p G;
+    mat_ZZ_p M;
+    vec_ZZ_p cc;
+    vec_ZZ dxx;
+    vec_ZZ xx;
+//    M = linTrClient(T, G);
+//    cc = linTr(M, c1);
+
+
+    G = getRandomMatrix(N, N, aBound);
+
+    M = keySwitchMatrix(getSecretKey(T), G, aBound, eBound);
+    cc = keySwitch(M, c1);
+    dxx = decrypt(getSecretKey(G), cc);
+
+
+    xx = x1;
+
+	cout << G << endl;
+	cout << xx << endl;
+	cout << dxx << endl;
+	cout << xx - dxx << endl;
+
+
+////
+//vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M);
+//
+//// returns M, the key switch matrix from vec(S^t S) to S,
+//// to be sent to the server
+//mat_ZZ_p innerProdClient(mat_ZZ_p T);
+//
+//// returns a column vector
+//mat_ZZ_p vectorize(mat_ZZ_p M);
 }
 

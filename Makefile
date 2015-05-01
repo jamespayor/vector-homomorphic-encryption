@@ -1,8 +1,8 @@
-all: test.cpp
-	g++ -g -Wall -o test test.cpp -lntl
+all: vhe.cpp
+	g++ -g -Wall -o vhe vhe.cpp -lntl
 
 clean:
-	$(RM) test
+	$(RM) vhe
 
 run: all
-	./test
+	./vhe
