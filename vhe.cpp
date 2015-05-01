@@ -416,7 +416,6 @@ int main()
 
     }
 
-    cout << vectors.size() << endl;
     stack<vec_ZZ_p> vectors2;
     while (vectors.size()) {
         vectors2.push(vectors.top()); vectors.pop();
@@ -425,7 +424,6 @@ int main()
         cout << vectors2.top() << endl; vectors2.pop();
     }
 
-    cout << matrices.size() << endl;
     stack<mat_ZZ_p> matrices2;
     while (matrices.size()) {
         matrices2.push(matrices.top()); matrices.pop();
