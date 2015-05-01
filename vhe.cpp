@@ -13,9 +13,9 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ w(134503000), q = w * w * w * w;
+const ZZ w(134503000), q = w * w * w * w * w;
 const ZZ aBound(12345), eBound(0);
-const int l = 100;
+const int l = 140;
 
 vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
@@ -230,7 +230,7 @@ mat_ZZ_p transformClient(mat_ZZ_p T, mat_ZZ_p G){
 }
 
 
-vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
+vec_ZZ_p innerProduct(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
     mat_ZZ_p cc1;
     mat_ZZ_p cc2;
     mat_ZZ_p cc;
@@ -253,14 +253,12 @@ vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, ZZ w, mat_ZZ_p M){
     return M * output;
 }
 
-mat_ZZ_p innerProdClient(mat_ZZ_p T){
+mat_ZZ_p innerProductClient(mat_ZZ_p T){
 	mat_ZZ_p I;
 	ident(I, T.NumRows());
     mat_ZZ_p S = hCat(I, T);
-    mat_ZZ_p vsts;
-
-    vsts = vectorize(transpose(S) * S);
-    return keySwitchMatrix(vsts, T, aBound, eBound);
+    mat_ZZ_p vectorizedSTransposeS = vectorize(transpose(S) * S);
+    return keySwitchMatrix(vectorizedSTransposeS, T, aBound, eBound);
 }
 
 
@@ -330,11 +328,12 @@ int main()
 		d[i] = RandomBnd(10000);
 	}
 
-	mat_ZZ_p T = getRandomMatrix(d.length(), d.length(), aBound);
+	mat_ZZ_p T1 = getRandomMatrix(d.length(), d.length(), aBound);
+	mat_ZZ_p T2 = getRandomMatrix(d.length(), d.length(), aBound);
 
-	vec_ZZ_p c = encrypt(T, d);
+	vec_ZZ_p c = keySwitch(keySwitchMatrix(getSecretKey(T1), T2, aBound, eBound), encrypt(T1, d));
 
-	vec_ZZ x = decrypt(getSecretKey(T), c);
+	vec_ZZ x = decrypt(getSecretKey(T2), c);
 
 	cout << d << endl;
 	cout << x << endl;
