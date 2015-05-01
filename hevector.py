@@ -14,8 +14,8 @@ def recv(output):
 
 def evaluate(operations):
 	import subprocess
-	output, error = subprocess.Popen(['vhe'], shell=True).communicate(send(operations))
-
+	output, error = subprocess.Popen(['vhe.exe'], shell=True).communicate(send(operations))
+        
 	if error:
 		from sys import stderr
 		stderr.write(error + '\n')
