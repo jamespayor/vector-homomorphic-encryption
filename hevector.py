@@ -13,7 +13,20 @@ def send(ops):
 	return '\n'.join(v if type(v) is str else tupleToVec(v) for v in ops)
 
 def recv(output):
-	return tuple(vecToTuple(l) for l in map(str.strip, output.splitlines()))
+	out = map(str.strip, output.splitlines())[::-1]
+	res = []
+	while out:
+		x = out.pop()
+		if x[:2] == '[[':
+			x = x[1:]
+			m = []
+			while x != ']':
+				m.append(vecToTuple(x))
+				x = out.pop()
+			res.append(tuple(m))
+		else:
+			res.append(tupleToVec(x))
+	return tuple(res)
 
 def evaluate(operations):
 	from subprocess import Popen, PIPE
