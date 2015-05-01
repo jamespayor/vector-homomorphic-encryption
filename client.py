@@ -24,10 +24,14 @@ text = "This is spam"
 
 vector = tuple(map(int,get_feature_vector(text)))
 
-C,T,SK = evaluate([vector, 'random-matrix', len(vector), 'duplicate-matix',
-          'encrypt','duplicate-matix','get-secret-key'])
+vector = (1,2,3)
+C,T,SK = evaluate([vector, 'random-matrix', len(vector), 'duplicate-matrix',
+          'encrypt', 'duplicate-matrix', 'get-secret-key'])
+print C
 
 PK = evaluate(['identity', len(vector), T,'key-switch-matrix'])
+
+print PK
 
 keySwitchM = evaluate([T,'inner-product-key-switch'])
 
