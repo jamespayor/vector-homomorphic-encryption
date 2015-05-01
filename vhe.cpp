@@ -13,11 +13,13 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ w(134503000), q = w * w * w * w * w;
-const ZZ aBound(1000), eBound(100);
+const ZZ w_zz(134503000);
+ZZ_p w;
+const ZZ q = w_zz * w_zz * w_zz * w_zz * w_zz;
+ZZ_p aBound, eBound;
 const int l = 140;
 
-vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
+vec_ZZ_p decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
 mat_ZZ_p hCat(mat_ZZ_p A, mat_ZZ_p B);
 mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B);
@@ -32,16 +34,16 @@ mat_ZZ_p getBitMatrix(mat_ZZ_p S);
 mat_ZZ_p getSecretKey(mat_ZZ_p T);
 
 // returns M
-mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound);
+mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ_p Abound, ZZ_p Ebound);
 
 // finds c* then returns Mc*
 vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c);
 
 // as described, treating I as the secret key and wx as ciphertext
-vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x);
+vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x);
 
 
-mat_ZZ_p getRandomMatrix(long row, long col, ZZ bound);
+mat_ZZ_p getRandomMatrix(long row, long col, ZZ_p bound);
 
 
 
@@ -112,12 +114,12 @@ vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c){
 }
 
 
-mat_ZZ_p getRandomMatrix(long row, long col, ZZ bound){
+mat_ZZ_p getRandomMatrix(long row, long col, ZZ_p bound){
     mat_ZZ_p A;
     A.SetDims(row, col);
     for (int i=0; i<row; ++i){
         for (int j=0; j<col; ++j){
-            A[i][j] = conv<ZZ_p>(RandomBnd(bound));
+            A[i][j] = conv<ZZ_p>(RandomBnd(conv<ZZ>(bound)));
         }
     }
     return A;
@@ -224,17 +226,17 @@ mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B) {
 }
 
 
-vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c) {
+vec_ZZ_p decrypt(mat_ZZ_p S, vec_ZZ_p c) {
     vec_ZZ_p Sc = S*c;
-    vec_ZZ output;
+    vec_ZZ_p output;
     output.SetLength(Sc.length());
     for (int i=0; i<Sc.length(); i++) {
-        output[i] = (rep(Sc[i])+(w+1)/2)/w;
+        output[i] = conv<ZZ_p>((rep(Sc[i])+(rep(w)+1)/2)/rep(w));
     }
     return output;
 }
 
-mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound) {
+mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ_p Abound, ZZ_p Ebound) {
     mat_ZZ_p Sstar = getBitMatrix(S);
     mat_ZZ_p A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),Abound);
     mat_ZZ_p E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),Ebound);
@@ -242,10 +244,10 @@ mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ Abound, ZZ Ebound) {
     return M;
 }
 
-vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x) {
+vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x) {
     mat_ZZ_p I;
     ident(I, x.length());
-    return keySwitch(keySwitchMatrix(I, T, aBound, eBound), conv<vec_ZZ_p>(w * x));
+    return keySwitch(keySwitchMatrix(I, T, aBound, eBound), w * x);
 }
 
 
@@ -285,7 +287,7 @@ vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, mat_ZZ_p M){
     vec_ZZ_p output;
     output.SetLength(cc.NumRows());
     for (int i=0; i<cc.NumRows(); i++) {
-        output[i] = conv<ZZ_p>((rep(cc[i][0])+(w+1)/2)/w);
+        output[i] = conv<ZZ_p>((rep(cc[i][0])+(rep(w)+1)/2)/rep(w));
     }
     return M * output;
 }
@@ -315,6 +317,9 @@ mat_ZZ_p vectorize(mat_ZZ_p M){
 int main()
 {
     ZZ_p::init(q);
+    w = conv<ZZ_p>(w_zz);
+    aBound = 1000;
+    eBound = 100;
 
     stack<vec_ZZ_p> vectors;
     stack<mat_ZZ_p> matrices;
@@ -366,17 +371,17 @@ int main()
             vectors.push(keySwitch(m, v));
 
         } else if (operation == "random-matrix") {
-            int rows, cols;
-            cin >> rows >> cols;
+            int dimension;
+            cin >> dimension;
             ZZ_p bound;
             cin >> bound;
-            matrices.push(getRandomMatrix(rows, cols, bound));
+            matrices.push(getRandomMatrix(dimension, dimension, bound));
 
         } else if (operation == "identity") {
             int rows;
             cin >> rows;
             mat_ZZ_p I;
-            getIdent(I, rows);
+            ident(I, rows);
             matrices.push(I);
 
         } else if (operation == "key-switch-matrix") {
@@ -384,11 +389,21 @@ int main()
             mat_ZZ_p S = matrices.top(); matrices.pop();
             matrices.push(keySwitchMatrix(S, T, aBound, eBound));
 
-        }
+        } else if (operation == "get-secret-key") {
+            mat_ZZ_p T = matrices.top(); matrices.pop();
+            matrices.push(getSecretKey(T));
 
-        mat_ZZ_p getSecretKey(mat_ZZ_p T);
-        vec_ZZ decrypt(mat_ZZ_p S, vec_ZZ_p c);
-        vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ x);
+        } else if (operation == "encrypt") {
+            mat_ZZ_p T = matrices.top(); matrices.pop();
+            vec_ZZ_p x = vectors.top(); vectors.pop();
+            vectors.push(encrypt(T, x));
+
+        } else if (operation == "decrypt") {
+            mat_ZZ_p S = matrices.top(); matrices.pop();
+            vec_ZZ_p c = vectors.top(); vectors.pop();
+            vectors.push(decrypt(S, c));
+
+        }
 
     }
 

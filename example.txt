@@ -1,0 +1,7 @@
+vector [1 2 3]
+random-matrix 3 1000
+duplicate-matrix
+encrypt
+get-secret-key
+decrypt
+
