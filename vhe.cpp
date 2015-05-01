@@ -382,9 +382,7 @@ int main()
         } else if (operation == "random-matrix") {
             int dimension;
             cin >> dimension;
-            ZZ_p bound;
-            cin >> bound;
-            matrices.push(getRandomMatrix(dimension, dimension, bound));
+            matrices.push(getRandomMatrix(dimension, dimension, aBound));
 
         } else if (operation == "identity") {
             int rows;
@@ -412,6 +410,8 @@ int main()
             vec_ZZ_p c = vectors.top(); vectors.pop();
             vectors.push(decrypt(S, c));
 
+        } else {
+            cerr << "Unknown command: " << operation << endl;
         }
 
     }
