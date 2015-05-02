@@ -13,11 +13,10 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ w_zz(1345031L);
+ZZ w_zz, q;
 ZZ_p w;
-const ZZ q = w_zz * w_zz * w_zz * w_zz * w_zz;
 ZZ_p aBound, eBound;
-const int l = 100;
+int l;
 
 vec_ZZ_p decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
@@ -370,10 +369,18 @@ mat_ZZ_p vectorize(mat_ZZ_p M){
 
 int main()
 {
+	ZZ abound(100);
+	ZZ ebound(5);
+
+	w_zz = 2L*abound*abound*ebound*ebound*10000L*10000L*100L;
+	q = w_zz * w_zz * w_zz * w_zz * w_zz;
+	l = 100;
+
 	ZZ_p::init(q);
 	w = conv<ZZ_p>(w_zz);
-	aBound = 100;
-	eBound = 0;
+	aBound = conv<ZZ_p>(abound);
+	eBound = conv<ZZ_p>(ebound);
+
 
 	stack<vec_ZZ_p> vectors;
 	stack<mat_ZZ_p> matrices;
