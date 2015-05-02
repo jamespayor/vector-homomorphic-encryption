@@ -336,10 +336,7 @@ vec_ZZ_p innerProdNoSwitch(vec_ZZ_p c1, vec_ZZ_p c2){
 	return output;
 }
 
-vec_ZZ_p innerProdNoSwitchDecrypt(vec_ZZ_p cc, mat_ZZ_p T){
-	mat_ZZ_p I;
-	ident(I, T.NumRows());
-	mat_ZZ_p S = hCat(I, T);
+vec_ZZ_p innerProdNoSwitchDecrypt(vec_ZZ_p cc, mat_ZZ_p S){
 	mat_ZZ_p tvsts = transpose(vectorize(transpose(S) * S));
 	return decrypt(tvsts, cc);
 }
@@ -466,6 +463,16 @@ int main()
 			mat_ZZ_p S = matrices.top(); matrices.pop();
 			vec_ZZ_p c = vectors.top(); vectors.pop();
 			vectors.push(decrypt(S, c));
+
+		} else if (operation == "inner-product-no-switch") {
+			vec_ZZ_p c1 = vectors.top(); vectors.pop();
+			vec_ZZ_p c2 = vectors.top(); vectors.pop();
+			vectors.push(innerProdNoSwitch(c1, c2));
+
+		} else if (operation == "inner-product-no-switch-decrypt") {
+			vec_ZZ_p c = vectors.top(); vectors.pop();
+			mat_ZZ_p S = matrices.top(); matrices.pop();
+			vectors.push(innerProdNoSwitchDecrypt(c, S));
 
 		} else {
 			cerr << "Unknown command: " << operation << endl;
