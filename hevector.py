@@ -32,15 +32,8 @@ def evaluate(operations, DEBUG=False):
     from subprocess import Popen, PIPE
 
     inp = send(operations)
-    if DEBUG:
-        print
-        print inp
-    output, error = Popen(['./vhe'], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True).communicate(inp)
-    if DEBUG:
-        print
-        print output
-        print
-
+    output, error = Popen(['vhe.exe'], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True).communicate(inp)
+    
     if error:
         from sys import stderr
         stderr.write(error + '\n')
