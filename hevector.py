@@ -1,6 +1,6 @@
 
 def tupleToVec(t):
-    if type(t) is int: return str(t).strip('L')
+    if type(t) in (int, long): return str(t).strip('L')
     if t and type(t[0]) is tuple:
         return 'matrix [%s]' % ' '.join('[%s]' % ' '.join(map(str, x)) for x in t)
     return 'vector [%s]' % ' '.join(map(tupleToVec,t))
@@ -32,7 +32,7 @@ def evaluate(operations):
     from subprocess import Popen, PIPE
 
     inp = send(operations)
-    output, error = Popen(['./vhe'], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True).communicate(inp)
+    output, error = Popen(['vhe.exe'], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True).communicate(inp)
     
     if error:
         from sys import stderr
