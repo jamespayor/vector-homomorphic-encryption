@@ -331,13 +331,13 @@ vec_ZZ_p innerProdNoSwitch(vec_ZZ_p c1, vec_ZZ_p c2){
 	vec_ZZ_p output;
 	output.SetLength(cc.NumRows());
 	for (int i=0; i<cc.NumRows(); i++) {
-		output[i] = conv<ZZ_p>((rep(cc[i][0])+(rep(w)+1)/2)/rep(w));
+		output[i] = conv<ZZ_p>(cc[i][0]);
 	}
 	return output;
 }
 
 vec_ZZ_p innerProdNoSwitchDecrypt(vec_ZZ_p cc, mat_ZZ_p S){
-	mat_ZZ_p tvsts = transpose(vectorize(transpose(S) * S));
+	mat_ZZ_p tvsts = transpose(vectorize(S));
 	return decrypt(tvsts, cc);
 }
 
