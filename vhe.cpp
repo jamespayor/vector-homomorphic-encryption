@@ -13,11 +13,11 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ w_zz(1345030000L);
+const ZZ w_zz(1345031L);
 ZZ_p w;
 const ZZ q = w_zz * w_zz * w_zz * w_zz * w_zz;
 ZZ_p aBound, eBound;
-const int l = 70;
+const int l = 100;
 
 vec_ZZ_p decrypt(mat_ZZ_p S, vec_ZZ_p c);
 
@@ -372,8 +372,8 @@ int main()
 {
 	ZZ_p::init(q);
 	w = conv<ZZ_p>(w_zz);
-	aBound = 1000;
-	eBound = 5;
+	aBound = 100;
+	eBound = 0;
 
 	stack<vec_ZZ_p> vectors;
 	stack<mat_ZZ_p> matrices;

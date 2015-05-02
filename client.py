@@ -1,70 +1,83 @@
-from model import features
 import numpy as np
 from hevector import evaluate
 
-def get_stopwords():
-    lines = [line.strip().lower() for line in open('stopwords.txt')]
-    return set(lines)
-stopwords =  get_stopwords()
+def get_features():
+	from model import features
+	return features
+
+def get_split():
+	from model import split
+	return split
+
 
 def get_feature_vector(doc):
-    global stopwords
-    global features
-    bannedCharacters = set('!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~0123456789')
-    dataX = np.zeros(len(features))
-    dataX[0] = 1
-    if doc != "":
-        docwords = ''.join(c for c in doc.lower() if c not in bannedCharacters).split()
-        for w in docwords:
-            if w in features:
-                dataX[features[w]] += 1
-    return dataX
+	features = get_features()
+	bannedCharacters = set('!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~0123456789')
+	dataX = np.zeros(len(features))
+	dataX[0] = 1
+	if doc != "":
+		docwords = ''.join(c for c in doc.lower() if c not in bannedCharacters).split()
+		for w in docwords:
+			if w in features:
+				dataX[features[w]] += 1
+	return tuple(map(int,dataX))
 
-text = "This is spam"
 
-n = len(features)
-split = 10
-feature_vector = get_feature_vector(text)
-feature_vector_splits = []
-secretKeysCommands = []
-for i in range(n/split+1):
-    feature_vector_splits.append(feature_vector[i*split:max((i+1)*split,n-1)])
-    secretKeysCommands.append('random-matrix')
-    secretKeysCommands.append(split)
+def inf(x):
+	while True:
+		yield x
 
-secretKeys = evaluate(secretKeysCommands)
+def flatten(x):
+	for y in x:
+		for z in y:
+			yield z
 
-encryptCommands = []
-for i in range(n/split+1):
-    encryptCommands.append(feature_vector_splits[i])
-    encryptCommands.append(secretKeys[i])
-    encryptCommands.append('get-secret-key')
-    encryptCommands.append('encrypt')
+def flatzip(*args):
+	return list(flatten(zip(*args)))
 
-ciphertexts = evaluate(encryptCommands)
+def classify(text):
 
-encryptedResults = getEncryptedResults(ciphertexts)
+	feature_vector = get_feature_vector(text)
 
-decryptCommands = []
-for i in range(n/split+1):
-    decryptCommands.append(encryptedResults[i])
-    decryptCommands.append(secretKeys[i])
-    decryptCommands.append('inner-product-no-switch-decrypt')
+	feature_vector_splits = []
+	split = get_split()
+	index = 0
+	while index < len(feature_vector):
+		feature_vector_splits.append(feature_vector[index:index+split])
+		index += split
 
-decryptedResults = evaluate(decryptCommands)
-result = 0.0
-for i in range(n/split+1):
-    result+=decryptedResults[i]
+	print "Getting secret keys..."
+	secretKeysCommands = flatzip(inf('random-matrix'), map(len, feature_vector_splits), inf('duplicate-matrix'), inf('get-secret-key'))
+	secretKeysAndTs = evaluate(secretKeysCommands)
+	secretKeyTs = secretKeysAndTs[::2]
+	secretKeys = secretKeysAndTs[1::2]
 
-print result
-#vector = tuple(map(int,))[:100]
-##
-##vector = (1,2,3)
-##C,T,SK = evaluate([vector, 'random-matrix', len(vector), 'duplicate-matrix','encrypt', 'duplicate-matrix', 'get-secret-key'])
-##print C
-##
-###keySwitchM = evaluate([T,'inner-product-key-switch'])
-##
-###print C, T, SK, PK, keySwitchM
-##result, = evaluate([C, SK, 'decrypt'])
-##print result
+	print "Getting ciphertexts..."
+	encryptCommands = flatzip(feature_vector_splits, secretKeyTs, inf('encrypt'))
+	ciphertexts = evaluate(encryptCommands)
+
+	print "Getting inner products..."
+	encryptedResults = getInnerProducts(ciphertexts)
+
+	classification = dict()
+	for name, results in encryptedResults:
+		print "Decrypting inner products for '%s'..." % name
+		decryptCommands = flatzip(results, secretKeys, inf('inner-product-no-switch-decrypt'))
+		decryptedResults = evaluate(decryptCommands)
+		#print decryptedResults
+		classification[name] = sum(flatten(decryptedResults))
+
+	return classification
+
+def getInnerProducts(ciphertexts):
+	from server import get_inner_products
+	return get_inner_products(ciphertexts)
+
+
+
+from sys import stdin
+text = stdin.read()
+
+print '\n'.join(map(str,classify(text).items()))
+
+

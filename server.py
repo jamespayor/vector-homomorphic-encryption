@@ -28,19 +28,32 @@ def route_classify():
 	results = get_inner_products(features)
 	return '\n'.join('%s %r' % result for result in results)
 
+def inf(x):
+	while True:
+		yield x
+
+def flatten(x):
+	for y in x:
+		for z in y:
+			yield z
+
+def flatzip(*args):
+	return list(flatten(zip(*args)))
+
 def get_inner_products(features):
-	from model import weightings
+	from model import weightings, split
 	results = list()
 	for name, weighting in weightings.items():
 		weights = list()
 		index = 0
-		for l in map(len, features):
-			weights.append(weighting[index:index+l])
-			index += l
+		while index < len(weighting):
+			weights.append(weighting[index:index+split])
+			index += split
 		from hevector import evaluate
-		res = evaluate([x for y in zip(weights, features, ('inner-product-no-switch' for i in range(len(weights)))) for x in y])
+		res = evaluate(flatzip(weights, features, inf('inner-product-no-switch')))
 		results.append((name, res))
 	return results
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
+
