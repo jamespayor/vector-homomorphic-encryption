@@ -29,10 +29,11 @@ C,T,SK = evaluate([vector, 'random-matrix', len(vector), 'duplicate-matrix',
           'encrypt', 'duplicate-matrix', 'get-secret-key'])
 print C
 
-PK, = evaluate(['identity', len(vector), T, 'key-switch-matrix'])
+PK = evaluate(['identity', len(vector), T,'key-switch-matrix'])
+
+print PK
 
 #keySwitchM = evaluate([T,'inner-product-key-switch'])
-#print keySwitchM
 
 #print C, T, SK, PK, keySwitchM
-print evaluate([C, SK, 'decrypt'])[0]
+print evaluate([C, SK, 'decrypt'])
