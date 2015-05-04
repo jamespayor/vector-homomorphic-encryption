@@ -26,7 +26,7 @@ def route_features():
 @app.route('/search', methods=['GET', 'POST'])
 def route_search():
     keySwitchMatrix = tuple(y for y in (tuple(int(x.strip().strip('L')) for x in things if x.strip()) for things in (thing.replace('(','').split(',') for thing in request.form['keySwitch'].split(')'))) if y)
-    results = get_linear_transformation(testX[:10], keySwitchMatrix)
+    results = get_linear_transformation(testX[0:10], keySwitchMatrix)
     return '\n'.join(map(repr, results))
 
 def inf(x):
@@ -43,7 +43,7 @@ def flatzip(*args):
 
 def loadFeatures():
     import cPickle as pk
-    return map(pk.load, (open('testX.pk'), open('testY.pk')))
+    return map(pk.load, (open('testX.pk'), open('testY.pk'), open('testFileNames.pk')))
 
 
 def get_linear_transformation(features,keySwitchMatrix):
@@ -51,6 +51,6 @@ def get_linear_transformation(features,keySwitchMatrix):
     return evaluate([keySwitchMatrix] + flatzip(inf('duplicate-matrix'), features, inf('linear-transform')))[:-1]
 
 if __name__ == '__main__':
-    testX, testY = loadFeatures()
+    testX, testY, testFileNames = loadFeatures()
     app.run(host='0.0.0.0', port=8000, debug=True)
 

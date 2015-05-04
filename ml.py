@@ -20,6 +20,7 @@ def parse_documents():
     testdocs = []
     training = [1,2,3]
     testing = [4,5,6]
+    testFileNames = []
     for i in training:
         for filename in glob("enron/enron{0}/ham/*.txt".format(i)):
             output = open(filename).read()
@@ -33,16 +34,18 @@ def parse_documents():
         for filename in glob("enron/enron{0}/ham/*.txt".format(i)):
             output = open(filename).read()
             testdocs.append((output,0))
+            testFileNames.append(filename)
         
         for filename in glob("enron/enron{0}/spam/*.txt".format(i)):
             output = open(filename).read()
             testdocs.append((output,1))
+            testFileNames.append(filename)
 
             
                 
-    return (traindocs,testdocs)
+    return (traindocs,testdocs,testFileNames)
 # 0 for ham, 1 for spam
-traindocs,testdocs = parse_documents()
+traindocs,testdocs,testFileNames = parse_documents()
 
 def get_stopwords():
     lines = [line.strip().lower() for line in open('stopwords.txt')]
@@ -138,8 +141,8 @@ def loadFeatures():
     return map(pk.load, (open('testX.pk'), open('testY.pk')))
     
 #storeFeatures(testX,testY)
-(testX,testY) = loadFeatures()
-print "loaded"
+#(testX,testY) = loadFeatures()
+#print "loaded"
 
 def trainNB(trainX,trainY,testX,testY,samples,limit):
     start = time.clock()
