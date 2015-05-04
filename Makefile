@@ -1,5 +1,5 @@
 all: vhe.cpp
-	g++ -g -Wall -o vhe vhe.cpp -lntl
+	g++ -O3 -Wall -o vhe vhe.cpp -lntl
 
 clean:
 	$(RM) vhe
