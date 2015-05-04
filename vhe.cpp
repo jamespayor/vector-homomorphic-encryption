@@ -13,121 +13,81 @@
 using namespace std;
 using namespace NTL;
 
-ZZ w_zz, q;
-ZZ_p w;
-ZZ_p aBound, eBound;
-int l;
+const ZZ w(1<<20);
+ZZ aBound(10000), tBound(aBound), eBound(10);
+int l = 50;
 
-vec_ZZ_p decrypt(mat_ZZ_p S, vec_ZZ_p c);
+mat_ZZ hCat(mat_ZZ A, mat_ZZ B);
+mat_ZZ vCat(mat_ZZ A, mat_ZZ B);
 
-mat_ZZ_p hCat(mat_ZZ_p A, mat_ZZ_p B);
-mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B);
+vec_ZZ decrypt(mat_ZZ S, vec_ZZ c);
 
 // returns c*
-vec_ZZ_p getBitVector(vec_ZZ_p c);
+vec_ZZ getBitVector(vec_ZZ c);
 
 // returns S*
-mat_ZZ_p getBitMatrix(mat_ZZ_p S);
+mat_ZZ getBitMatrix(mat_ZZ S);
 
 // returns S
-mat_ZZ_p getSecretKey(mat_ZZ_p T);
+mat_ZZ getSecretKey(mat_ZZ T);
 
 // returns M
-mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ_p Abound, ZZ_p Ebound);
+mat_ZZ keySwitchMatrix(mat_ZZ S, mat_ZZ T);
 
 // finds c* then returns Mc*
-vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c);
+vec_ZZ keySwitch(mat_ZZ M, vec_ZZ c);
 
 // as described, treating I as the secret key and wx as ciphertext
-vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x);
+vec_ZZ encrypt(mat_ZZ T, vec_ZZ x);
 
-
-mat_ZZ_p getRandomMatrix(long row, long col, ZZ_p bound);
-
-
-
+mat_ZZ getRandomMatrix(long row, long col, ZZ bound);
 
 // server side addition with same secret key
-vec_ZZ_p addn(vec_ZZ_p c1, vec_ZZ_p c2);
+vec_ZZ addn(vec_ZZ c1, vec_ZZ c2);
 
 // server side linear transformation,
 // returns S(Gx) given c=Sx and M (key switch matrix from GS to S)
-vec_ZZ_p linearTransform(mat_ZZ_p M, vec_ZZ_p c);
+vec_ZZ linearTransform(mat_ZZ M, vec_ZZ c);
 
 // returns M, the key switch matrix from GS to S,
 // to be sent to server
-mat_ZZ_p linearTransformClient(mat_ZZ_p T, mat_ZZ_p G);
+mat_ZZ linearTransformClient(mat_ZZ T, mat_ZZ G);
 
 // computes an inner product, given two ciphertexts and the keyswitch matrix
-vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, mat_ZZ_p M);
+vec_ZZ innerProd(vec_ZZ c1, vec_ZZ c2, mat_ZZ M);
 
 // returns M, the key switch matrix from vec(S^t S) to S,
 // to be sent to the server
-mat_ZZ_p innerProdClient(mat_ZZ_p T);
-
+mat_ZZ innerProdClient(mat_ZZ T);
 
 // computes an inner product, given two ciphertexts and the keyswitch matrix
-vec_ZZ_p innerProdNoSwitch(vec_ZZ_p c1, vec_ZZ_p c2);
+vec_ZZ innerProdNoSwitch(vec_ZZ c1, vec_ZZ c2);
 
 // returns M, the key switch matrix from vec(S^t S) to S,
 // to be sent to the server
-vec_ZZ_p innerProdNoSwitchDecrypt(vec_ZZ_p cc, mat_ZZ_p T);
-
+vec_ZZ innerProdNoSwitchDecrypt(vec_ZZ cc, mat_ZZ T);
 
 // returns a column vector
-mat_ZZ_p vectorize(mat_ZZ_p M);
+mat_ZZ vectorize(mat_ZZ M);
 
-
-mat_ZZ_p copyRows(mat_ZZ_p row, long numrows);
-
-
-mat_ZZ tozz(mat_ZZ_p m);
-mat_ZZ_p tozzp(mat_ZZ m);
-
-
-
-
-mat_ZZ tozz(mat_ZZ_p m){
-	mat_ZZ A;
-	A.SetDims(m.NumRows(), m.NumCols());
-	for (int i=0; i<m.NumRows(); ++i){
-		for (int j=0; j<m.NumCols(); ++j){
-			A[i][j] = conv<ZZ>(m[i][j]);
-		}
-	}
-	return A;
-}
-
-mat_ZZ_p tozzp(mat_ZZ m){
-	mat_ZZ_p A;
-	A.SetDims(m.NumRows(), m.NumCols());
-	for (int i=0; i<m.NumRows(); ++i){
-		for (int j=0; j<m.NumCols(); ++j){
-			A[i][j] = conv<ZZ_p>(m[i][j]);
-		}
-	}
-	return A;
-}
-
-
-
+mat_ZZ copyRows(mat_ZZ row, long numrows);
 
 
 
 
 // finds c* then returns Mc*
-vec_ZZ_p keySwitch(mat_ZZ_p M, vec_ZZ_p c){
-	vec_ZZ_p cstar = getBitVector(c);
+vec_ZZ keySwitch(mat_ZZ M, vec_ZZ c){
+	vec_ZZ cstar = getBitVector(c);
 	return M * cstar;
 }
 
 
-mat_ZZ_p getRandomMatrix(long row, long col, ZZ_p bound){
-	mat_ZZ_p A;
+mat_ZZ getRandomMatrix(long row, long col, ZZ bound){
+	mat_ZZ A;
 	A.SetDims(row, col);
 	for (int i=0; i<row; ++i){
 		for (int j=0; j<col; ++j){
-			A[i][j] = conv<ZZ_p>(RandomBnd(conv<ZZ>(bound)));
+			A[i][j] = RandomBnd(bound);
 		}
 	}
 	return A;
@@ -137,12 +97,12 @@ mat_ZZ_p getRandomMatrix(long row, long col, ZZ_p bound){
 
 
 // returns S*
-mat_ZZ_p getBitMatrix(mat_ZZ_p S) {
-	mat_ZZ_p result;
+mat_ZZ getBitMatrix(mat_ZZ S) {
+	mat_ZZ result;
 	int rows = S.NumRows(), cols = S.NumCols();
 	result.SetDims(rows, l * cols);
 
-	vec_ZZ_p powers;
+	vec_ZZ powers;
 	powers.SetLength(l);
 	powers[0] = 1;
 	for(int i = 0; i < l - 1; ++i) {
@@ -162,14 +122,15 @@ mat_ZZ_p getBitMatrix(mat_ZZ_p S) {
 
 
 // returns c*
-vec_ZZ_p getBitVector(vec_ZZ_p c) {
-	vec_ZZ_p result;
+vec_ZZ getBitVector(vec_ZZ c) {
+	vec_ZZ result;
 	int length = c.length();
 	result.SetLength(length * l);
 	for(int i = 0; i < length; ++i) {
-		ZZ value = rep(c[i]);
+		ZZ sign = (c[i] < ZZ(0)) ? ZZ(-1) : ZZ(1);
+		ZZ value = c[i] * sign;
 		for(int j = 0; j < l; ++j) {
-			result[i * l + j] = bit(value, j);
+			result[i * l + j] = sign*bit(value, j);
 		}
 	}
 	return result;
@@ -178,18 +139,18 @@ vec_ZZ_p getBitVector(vec_ZZ_p c) {
 
 
 // returns S
-mat_ZZ_p getSecretKey(mat_ZZ_p T) {
-	mat_ZZ_p I;
+mat_ZZ getSecretKey(mat_ZZ T) {
+	mat_ZZ I;
 	ident(I, T.NumRows());
 	return hCat(I, T);
 }
 
 
-mat_ZZ_p hCat(mat_ZZ_p A, mat_ZZ_p B) {
+mat_ZZ hCat(mat_ZZ A, mat_ZZ B) {
 	assert(A.NumRows() == B.NumRows());
 
 	int rows = A.NumRows(), colsA = A.NumCols(), colsB = B.NumCols();
-	mat_ZZ_p result;
+	mat_ZZ result;
 	result.SetDims(rows, colsA + colsB);
 
 	// Copy A
@@ -209,11 +170,11 @@ mat_ZZ_p hCat(mat_ZZ_p A, mat_ZZ_p B) {
 	return result;
 }
 
-mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B) {
+mat_ZZ vCat(mat_ZZ A, mat_ZZ B) {
 	assert(A.NumCols() == B.NumCols());
 
 	int cols = A.NumCols(), rowsA = A.NumRows(), rowsB = B.NumRows();
-	mat_ZZ_p result;
+	mat_ZZ result;
 	result.SetDims(rowsA + rowsB, cols);
 
 	// Copy A
@@ -233,54 +194,57 @@ mat_ZZ_p vCat(mat_ZZ_p A, mat_ZZ_p B) {
 	return result;
 }
 
+ZZ nearestInteger(ZZ x, ZZ w) {
+	return (x + (w+1)/2) / w;
+}
 
-vec_ZZ_p decrypt(mat_ZZ_p S, vec_ZZ_p c) {
-	vec_ZZ_p Sc = S*c;
-	vec_ZZ_p output;
+vec_ZZ decrypt(mat_ZZ S, vec_ZZ c) {
+	vec_ZZ Sc = S*c;
+	vec_ZZ output;
 	output.SetLength(Sc.length());
 	for (int i=0; i<Sc.length(); i++) {
-		output[i] = conv<ZZ_p>((rep(Sc[i])+(rep(w)+1)/2)/rep(w));
+		output[i] = nearestInteger(Sc[i], w);
 	}
 	return output;
 }
 
-mat_ZZ_p keySwitchMatrix(mat_ZZ_p S, mat_ZZ_p T, ZZ_p Abound, ZZ_p Ebound) {
-	mat_ZZ_p Sstar = getBitMatrix(S);
-	mat_ZZ_p A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),Abound);
-	mat_ZZ_p E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),Ebound);
-	mat_ZZ_p M = vCat(Sstar + E - T*A, A);
+mat_ZZ keySwitchMatrix(mat_ZZ S, mat_ZZ T) {
+	mat_ZZ Sstar = getBitMatrix(S);
+	mat_ZZ A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),aBound);
+	mat_ZZ E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),eBound);
+	mat_ZZ M = vCat(Sstar + E - T*A, A);
 	return M;
 }
 
-vec_ZZ_p encrypt(mat_ZZ_p T, vec_ZZ_p x) {
-	mat_ZZ_p I;
+vec_ZZ encrypt(mat_ZZ T, vec_ZZ x) {
+	mat_ZZ I;
 	ident(I, x.length());
-	return keySwitch(keySwitchMatrix(I, T, aBound, eBound), w * x);
+	return keySwitch(keySwitchMatrix(I, T), w * x);
 }
 
 
 
 
-vec_ZZ_p addVectors(vec_ZZ_p c1, vec_ZZ_p c2){
+vec_ZZ addVectors(vec_ZZ c1, vec_ZZ c2){
 	return c1 + c2;
 }
 
-vec_ZZ_p linearTransform(mat_ZZ_p M, vec_ZZ_p c){
+vec_ZZ linearTransform(mat_ZZ M, vec_ZZ c){
 	return M * getBitVector(c);
 }
 
-mat_ZZ_p linearTransformClient(mat_ZZ_p T, mat_ZZ_p G){
-	mat_ZZ_p I;
+mat_ZZ linearTransformClient(mat_ZZ T, mat_ZZ G){
+	mat_ZZ I;
 	ident(I, T.NumRows());
-	mat_ZZ_p S = hCat(I, T);
-	return keySwitchMatrix(G * S, T, aBound, eBound);
+	mat_ZZ S = hCat(I, T);
+	return keySwitchMatrix(G * S, T);
 }
 
 
-vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, mat_ZZ_p M){
-	mat_ZZ_p cc1;
-	mat_ZZ_p cc2;
-	mat_ZZ_p cc;
+vec_ZZ innerProd(vec_ZZ c1, vec_ZZ c2, mat_ZZ M){
+	mat_ZZ cc1;
+	mat_ZZ cc2;
+	mat_ZZ cc;
 
 	cc1.SetDims(c1.length(), 1);
 	for (int i=0; i<c1.length(); ++i){
@@ -292,30 +256,30 @@ vec_ZZ_p innerProd(vec_ZZ_p c1, vec_ZZ_p c2, mat_ZZ_p M){
 	}
 	cc = vectorize(cc1 * cc2);
 
-	vec_ZZ_p output;
+	vec_ZZ output;
 	output.SetLength(cc.NumRows());
 	for (int i=0; i<cc.NumRows(); i++) {
-		output[i] = conv<ZZ_p>((rep(cc[i][0])+(rep(w)+1)/2)/rep(w));
+		output[i] = nearestInteger(cc[i][0], w);
 	}
 	return M * getBitVector(output);
 }
 
-mat_ZZ_p innerProdClient(mat_ZZ_p T){
-	mat_ZZ_p I;
+mat_ZZ innerProdClient(mat_ZZ T){
+	mat_ZZ I;
 	ident(I, T.NumRows());
-	mat_ZZ_p S = hCat(I, T);
-	mat_ZZ_p tvsts = transpose(vectorize(transpose(S) * S));
-	mat_ZZ_p mvsts = copyRows(tvsts, T.NumRows());
-	return keySwitchMatrix(mvsts, T, aBound, eBound);
+	mat_ZZ S = hCat(I, T);
+	mat_ZZ tvsts = transpose(vectorize(transpose(S) * S));
+	mat_ZZ mvsts = copyRows(tvsts, T.NumRows());
+	return keySwitchMatrix(mvsts, T);
 }
 
 
 
 
-vec_ZZ_p innerProdNoSwitch(vec_ZZ_p c1, vec_ZZ_p c2){
-	mat_ZZ_p cc1;
-	mat_ZZ_p cc2;
-	mat_ZZ_p cc;
+vec_ZZ innerProdNoSwitch(vec_ZZ c1, vec_ZZ c2){
+	mat_ZZ cc1;
+	mat_ZZ cc2;
+	mat_ZZ cc;
 
 	cc1.SetDims(c1.length(), 1);
 	for (int i=0; i<c1.length(); ++i){
@@ -327,24 +291,24 @@ vec_ZZ_p innerProdNoSwitch(vec_ZZ_p c1, vec_ZZ_p c2){
 	}
 	cc = vectorize(cc1 * cc2);
 
-	vec_ZZ_p output;
+	vec_ZZ output;
 	output.SetLength(cc.NumRows());
 	for (int i=0; i<cc.NumRows(); i++) {
-		output[i] = conv<ZZ_p>(cc[i][0]);
+		output[i] = cc[i][0];
 	}
 	return output;
 }
 
-vec_ZZ_p innerProdNoSwitchDecrypt(vec_ZZ_p cc, mat_ZZ_p S){
-	mat_ZZ_p tvsts = transpose(vectorize(S));
+vec_ZZ innerProdNoSwitchDecrypt(vec_ZZ cc, mat_ZZ S){
+	mat_ZZ tvsts = transpose(vectorize(S));
 	return decrypt(tvsts, cc);
 }
 
 
 
 
-mat_ZZ_p copyRows(mat_ZZ_p row, long numrows){
-	mat_ZZ_p ans;
+mat_ZZ copyRows(mat_ZZ row, long numrows){
+	mat_ZZ ans;
 	ans.SetDims(numrows, row.NumCols());
 	for (int i=0; i<ans.NumRows(); ++i){
 		for (int j=0; j<ans.NumCols(); ++j){
@@ -354,8 +318,8 @@ mat_ZZ_p copyRows(mat_ZZ_p row, long numrows){
 	return ans;
 }
 
-mat_ZZ_p vectorize(mat_ZZ_p M){
-	mat_ZZ_p ans;
+mat_ZZ vectorize(mat_ZZ M){
+	mat_ZZ ans;
 	ans.SetDims(M.NumRows() * M.NumCols(), 1);
 	for (int i=0; i<M.NumRows(); ++i){
 		for (int j=0; j<M.NumCols(); ++j){
@@ -369,32 +333,19 @@ mat_ZZ_p vectorize(mat_ZZ_p M){
 
 int main()
 {
-	ZZ abound(100);
-	ZZ ebound(5);
-
-	w_zz = 2L*abound*abound*ebound*ebound*10000L*10000L*100L;
-	q = w_zz * w_zz * w_zz * w_zz * w_zz;
-	l = 100;
-
-	ZZ_p::init(q);
-	w = conv<ZZ_p>(w_zz);
-	aBound = conv<ZZ_p>(abound);
-	eBound = conv<ZZ_p>(ebound);
-
-
-	stack<vec_ZZ_p> vectors;
-	stack<mat_ZZ_p> matrices;
+	stack<vec_ZZ> vectors;
+	stack<mat_ZZ> matrices;
 
 	string operation;
 	while (cin >> operation) {
 
 		if (operation == "vector") {
-			vec_ZZ_p v;
+			vec_ZZ v;
 			cin >> v;
 			vectors.push(v);
 
 		} else if (operation == "matrix") {
-			mat_ZZ_p m;
+			mat_ZZ m;
 			cin >> m;
 			matrices.push(m);
 
@@ -405,80 +356,80 @@ int main()
 			matrices.push(matrices.top());
 
 		} else if (operation == "add") {
-			vec_ZZ_p v1 = vectors.top(); vectors.pop();
-			vec_ZZ_p v2 = vectors.top(); vectors.pop();
+			vec_ZZ v1 = vectors.top(); vectors.pop();
+			vec_ZZ v2 = vectors.top(); vectors.pop();
 			vectors.push(addVectors(v1, v2));
 
 		} else if (operation == "scalar-multiply") {
-			ZZ_p x;
+			ZZ x;
 			cin >> x;
-			vec_ZZ_p v = vectors.top(); vectors.pop();
+			vec_ZZ v = vectors.top(); vectors.pop();
 			vectors.push(v * x);
 
 		} else if (operation == "linear-transform") {
-			vec_ZZ_p v = vectors.top(); vectors.pop();
-			mat_ZZ_p m = matrices.top(); matrices.pop();
+			vec_ZZ v = vectors.top(); vectors.pop();
+			mat_ZZ m = matrices.top(); matrices.pop();
 			vectors.push(linearTransform(m, v));
 
 		} else if (operation == "linear-transform-key-switch") {
-			mat_ZZ_p T = matrices.top(); matrices.pop();
-			mat_ZZ_p G = matrices.top(); matrices.pop();
+			mat_ZZ T = matrices.top(); matrices.pop();
+			mat_ZZ G = matrices.top(); matrices.pop();
 			matrices.push(linearTransformClient(T, G));
 
 		} else if (operation == "inner-product") {
-			vec_ZZ_p v1 = vectors.top(); vectors.pop();
-			vec_ZZ_p v2 = vectors.top(); vectors.pop();
-			mat_ZZ_p m = matrices.top(); matrices.pop();
+			vec_ZZ v1 = vectors.top(); vectors.pop();
+			vec_ZZ v2 = vectors.top(); vectors.pop();
+			mat_ZZ m = matrices.top(); matrices.pop();
 			vectors.push(innerProd(v1, v2, m));
 
 		} else if (operation == "inner-product-key-switch") {
-			mat_ZZ_p T = matrices.top(); matrices.pop();
+			mat_ZZ T = matrices.top(); matrices.pop();
 			matrices.push(innerProdClient(T));
 
 		} else if (operation == "key-switch") {
-			vec_ZZ_p v = vectors.top(); vectors.pop();
-			mat_ZZ_p m = matrices.top(); matrices.pop();
+			vec_ZZ v = vectors.top(); vectors.pop();
+			mat_ZZ m = matrices.top(); matrices.pop();
 			vectors.push(keySwitch(m, v));
 
 		} else if (operation == "random-matrix") {
 			int dimension;
 			cin >> dimension;
-			matrices.push(getRandomMatrix(dimension, dimension, aBound));
+			matrices.push(getRandomMatrix(dimension, dimension, tBound));
 
 		} else if (operation == "identity") {
 			int rows;
 			cin >> rows;
-			mat_ZZ_p I;
+			mat_ZZ I;
 			ident(I, rows);
 			matrices.push(I);
 
 		} else if (operation == "key-switch-matrix") {
-			mat_ZZ_p T = matrices.top(); matrices.pop();
-			mat_ZZ_p S = matrices.top(); matrices.pop();
-			matrices.push(keySwitchMatrix(S, T, aBound, eBound));
+			mat_ZZ T = matrices.top(); matrices.pop();
+			mat_ZZ S = matrices.top(); matrices.pop();
+			matrices.push(keySwitchMatrix(S, T));
 
 		} else if (operation == "get-secret-key") {
-			mat_ZZ_p T = matrices.top(); matrices.pop();
+			mat_ZZ T = matrices.top(); matrices.pop();
 			matrices.push(getSecretKey(T));
 
 		} else if (operation == "encrypt") {
-			mat_ZZ_p T = matrices.top(); matrices.pop();
-			vec_ZZ_p x = vectors.top(); vectors.pop();
+			mat_ZZ T = matrices.top(); matrices.pop();
+			vec_ZZ x = vectors.top(); vectors.pop();
 			vectors.push(encrypt(T, x));
 
 		} else if (operation == "decrypt") {
-			mat_ZZ_p S = matrices.top(); matrices.pop();
-			vec_ZZ_p c = vectors.top(); vectors.pop();
+			mat_ZZ S = matrices.top(); matrices.pop();
+			vec_ZZ c = vectors.top(); vectors.pop();
 			vectors.push(decrypt(S, c));
 
 		} else if (operation == "inner-product-no-switch") {
-			vec_ZZ_p c1 = vectors.top(); vectors.pop();
-			vec_ZZ_p c2 = vectors.top(); vectors.pop();
+			vec_ZZ c1 = vectors.top(); vectors.pop();
+			vec_ZZ c2 = vectors.top(); vectors.pop();
 			vectors.push(innerProdNoSwitch(c1, c2));
 
 		} else if (operation == "inner-product-no-switch-decrypt") {
-			vec_ZZ_p c = vectors.top(); vectors.pop();
-			mat_ZZ_p S = matrices.top(); matrices.pop();
+			vec_ZZ c = vectors.top(); vectors.pop();
+			mat_ZZ S = matrices.top(); matrices.pop();
 			vectors.push(innerProdNoSwitchDecrypt(c, S));
 
 		} else {
@@ -487,7 +438,7 @@ int main()
 
 	}
 
-	stack<vec_ZZ_p> vectors2;
+	stack<vec_ZZ> vectors2;
 	while (vectors.size()) {
 		vectors2.push(vectors.top()); vectors.pop();
 	}
@@ -495,7 +446,7 @@ int main()
 		cout << vectors2.top() << endl; vectors2.pop();
 	}
 
-	stack<mat_ZZ_p> matrices2;
+	stack<mat_ZZ> matrices2;
 	while (matrices.size()) {
 		matrices2.push(matrices.top()); matrices.pop();
 	}
@@ -506,8 +457,8 @@ int main()
 
 	//// Testing for the 3 fundamental operations:
 	//    const int N = 40;
-	//	vec_ZZ_p x1;
-	//	vec_ZZ_p x2;
+	//	vec_ZZ x1;
+	//	vec_ZZ x2;
 	//	x1.SetLength(N);
 	//	x2.SetLength(N);
 	//	for(int i = 0; i < N; ++i) {
@@ -516,16 +467,16 @@ int main()
 	//	}
 	//	cout << x1 << endl;
 	//	cout << x2 << endl;
-	//	mat_ZZ_p T = getRandomMatrix(N, 1, aBound);
-	//	vec_ZZ_p c1 = encrypt(T, x1);
-	//	vec_ZZ_p c2 = encrypt(T, x2);
+	//	mat_ZZ T = getRandomMatrix(N, 1, aBound);
+	//	vec_ZZ c1 = encrypt(T, x1);
+	//	vec_ZZ c2 = encrypt(T, x2);
 	//
 	//
 	//// testing for inner product no switch
 	//
-	//    vec_ZZ_p cc = innerProdNoSwitch(c1, c2);
-	//    vec_ZZ_p dxx = innerProdNoSwitchDecrypt(cc, T);
-	//    ZZ_p xx;
+	//    vec_ZZ cc = innerProdNoSwitch(c1, c2);
+	//    vec_ZZ dxx = innerProdNoSwitchDecrypt(cc, T);
+	//    ZZ xx;
 	//    InnerProduct(xx, x1, x2);
 	//
 	//    cout << xx << endl;
@@ -534,10 +485,10 @@ int main()
 
 
 	//// testing for inner product
-	//    mat_ZZ_p M;
-	//    vec_ZZ_p cc;
-	//    vec_ZZ_p dxx;
-	//    ZZ_p xx;
+	//    mat_ZZ M;
+	//    vec_ZZ cc;
+	//    vec_ZZ dxx;
+	//    ZZ xx;
 	//
 	//    M = innerProdClient(T);
 	//    cc = innerProd(c1, c2, M);
@@ -553,11 +504,11 @@ int main()
 
 
 	//// testing for linear transform
-	//    mat_ZZ_p G;
-	//    mat_ZZ_p M;
-	//    vec_ZZ_p cc;
-	//    vec_ZZ_p dxx;
-	//    vec_ZZ_p xx;
+	//    mat_ZZ G;
+	//    mat_ZZ M;
+	//    vec_ZZ cc;
+	//    vec_ZZ dxx;
+	//    vec_ZZ xx;
 	//
 	//    G = getRandomMatrix(N, N, aBound);
 	//    M = linearTransformClient(T, G);
@@ -573,7 +524,7 @@ int main()
 
 
 	//// testing for addition:
-	//	vec_ZZ_p cplus;
+	//	vec_ZZ cplus;
 	//	vec_ZZ dxplus;
 	//	vec_ZZ xplus;
 	//
