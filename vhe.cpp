@@ -19,65 +19,65 @@ const ZZ w(twoToTheTwenty*twoToTheTwenty);
 ZZ aBound(10000), tBound(aBound), eBound(10000);
 int l = 100;
 
-mat_ZZ hCat(mat_ZZ A, mat_ZZ B);
-mat_ZZ vCat(mat_ZZ A, mat_ZZ B);
+const mat_ZZ hCat(const mat_ZZ& A, const mat_ZZ& B);
+const mat_ZZ vCat(const mat_ZZ& A, const mat_ZZ& B);
 
-vec_ZZ decrypt(mat_ZZ S, vec_ZZ c);
+const vec_ZZ decrypt(const mat_ZZ& S, const vec_ZZ& c);
 
 // returns c*
-vec_ZZ getBitVector(vec_ZZ c);
+const vec_ZZ getBitVector(const vec_ZZ& c);
 
 // returns S*
-mat_ZZ getBitMatrix(mat_ZZ S);
+const mat_ZZ getBitMatrix(const mat_ZZ& S);
 
 // returns S
-mat_ZZ getSecretKey(mat_ZZ T);
+const mat_ZZ getSecretKey(const mat_ZZ& T);
 
 // returns M
-mat_ZZ keySwitchMatrix(mat_ZZ S, mat_ZZ T);
+const mat_ZZ keySwitchMatrix(const mat_ZZ& S, const mat_ZZ& T);
 
 // finds c* then returns Mc*
-vec_ZZ keySwitch(mat_ZZ M, vec_ZZ c);
+const vec_ZZ keySwitch(const mat_ZZ& M, const vec_ZZ& c);
 
 // as described, treating I as the secret key and wx as ciphertext
-vec_ZZ encrypt(mat_ZZ T, vec_ZZ x);
+const vec_ZZ encrypt(const mat_ZZ& T, const vec_ZZ& x);
 
-mat_ZZ getRandomMatrix(long row, long col, ZZ bound);
+const mat_ZZ getRandomMatrix(long row, long col, const ZZ& bound);
 
 // server side addition with same secret key
-vec_ZZ addn(vec_ZZ c1, vec_ZZ c2);
+const vec_ZZ addn(const vec_ZZ& c1, const vec_ZZ& c2);
 
 // server side linear transformation,
 // returns S(Gx) given c=Sx and M (key switch matrix from GS to S)
-vec_ZZ linearTransform(mat_ZZ M, vec_ZZ c);
+const vec_ZZ linearTransform(const mat_ZZ& M, const vec_ZZ& c);
 
 // returns M, the key switch matrix from GS to S,
 // to be sent to server
-mat_ZZ linearTransformClient(mat_ZZ T, mat_ZZ G);
+const mat_ZZ linearTransformClient(const mat_ZZ& T, const mat_ZZ& G);
 
 // computes an inner product, given two ciphertexts and the keyswitch matrix
-vec_ZZ innerProd(vec_ZZ c1, vec_ZZ c2, mat_ZZ M);
+const vec_ZZ innerProd(const vec_ZZ& c1, const vec_ZZ& c2, const mat_ZZ& M);
 
 // returns M, the key switch matrix from vec(S^t S) to S,
 // to be sent to the server
-mat_ZZ innerProdClient(mat_ZZ T);
+const mat_ZZ innerProdClient(const mat_ZZ& T);
 
 // returns a column vector
-mat_ZZ vectorize(mat_ZZ M);
+const mat_ZZ vectorize(const mat_ZZ& M);
 
-mat_ZZ copyRows(mat_ZZ row, long numrows);
+const mat_ZZ copyRows(const mat_ZZ& row, long numrows);
 
 
 
 
 // finds c* then returns Mc*
-vec_ZZ keySwitch(mat_ZZ M, vec_ZZ c){
+const vec_ZZ keySwitch(const mat_ZZ& M, const vec_ZZ& c) {
 	vec_ZZ cstar = getBitVector(c);
 	return M * cstar;
 }
 
 
-mat_ZZ getRandomMatrix(long row, long col, ZZ bound){
+const mat_ZZ getRandomMatrix(long row, long col, const ZZ& bound){
 	mat_ZZ A;
 	A.SetDims(row, col);
 	for (int i=0; i<row; ++i){
@@ -92,7 +92,7 @@ mat_ZZ getRandomMatrix(long row, long col, ZZ bound){
 
 
 // returns S*
-mat_ZZ getBitMatrix(mat_ZZ S) {
+const mat_ZZ getBitMatrix(const mat_ZZ& S) {
 	mat_ZZ result;
 	int rows = S.NumRows(), cols = S.NumCols();
 	result.SetDims(rows, l * cols);
@@ -117,7 +117,7 @@ mat_ZZ getBitMatrix(mat_ZZ S) {
 
 
 // returns c*
-vec_ZZ getBitVector(vec_ZZ c) {
+const vec_ZZ getBitVector(const vec_ZZ& c) {
 	vec_ZZ result;
 	int length = c.length();
 	result.SetLength(length * l);
@@ -134,14 +134,14 @@ vec_ZZ getBitVector(vec_ZZ c) {
 
 
 // returns S
-mat_ZZ getSecretKey(mat_ZZ T) {
+const mat_ZZ getSecretKey(const mat_ZZ& T) {
 	mat_ZZ I;
 	ident(I, T.NumRows());
 	return hCat(I, T);
 }
 
 
-mat_ZZ hCat(mat_ZZ A, mat_ZZ B) {
+const mat_ZZ hCat(const mat_ZZ& A, const mat_ZZ& B) {
 	assert(A.NumRows() == B.NumRows());
 
 	int rows = A.NumRows(), colsA = A.NumCols(), colsB = B.NumCols();
@@ -165,7 +165,7 @@ mat_ZZ hCat(mat_ZZ A, mat_ZZ B) {
 	return result;
 }
 
-mat_ZZ vCat(mat_ZZ A, mat_ZZ B) {
+const mat_ZZ vCat(const mat_ZZ& A, const mat_ZZ& B) {
 	assert(A.NumCols() == B.NumCols());
 
 	int cols = A.NumCols(), rowsA = A.NumRows(), rowsB = B.NumRows();
@@ -189,11 +189,11 @@ mat_ZZ vCat(mat_ZZ A, mat_ZZ B) {
 	return result;
 }
 
-ZZ nearestInteger(ZZ x, ZZ w) {
+inline const ZZ nearestInteger(const ZZ& x, const ZZ& w) {
 	return (x + (w+1)/2) / w;
 }
 
-vec_ZZ decrypt(mat_ZZ S, vec_ZZ c) {
+const vec_ZZ decrypt(const mat_ZZ& S, const vec_ZZ& c) {
 	vec_ZZ Sc = S*c;
 	vec_ZZ output;
 	output.SetLength(Sc.length());
@@ -203,21 +203,14 @@ vec_ZZ decrypt(mat_ZZ S, vec_ZZ c) {
 	return output;
 }
 
-mat_ZZ keySwitchMatrix(mat_ZZ S, mat_ZZ T) {
-	cerr << "keySwitch time!" << endl;
-	cerr << "S(" << S.NumRows() << ", " << S.NumCols() << ")" << endl;
-	cerr << "T(" << T.NumRows() << ", " << T.NumCols() << ")" << endl;
+const mat_ZZ keySwitchMatrix(const mat_ZZ& S, const mat_ZZ& T) {
 	mat_ZZ Sstar = getBitMatrix(S);
-	cerr << "Sstar(" << Sstar.NumRows() << ", " << Sstar.NumCols() << ")" << endl;
 	mat_ZZ A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),aBound);
-	cerr << "A(" << A.NumRows() << ", " << A.NumCols() << ")" << endl;
 	mat_ZZ E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),eBound);
-	cerr << "E(" << E.NumRows() << ", " << E.NumCols() << ")" << endl;
-	mat_ZZ M = vCat(Sstar + E - T*A, A);
-	return M;
+	return vCat(Sstar + E - T*A, A);
 }
 
-vec_ZZ encrypt(mat_ZZ T, vec_ZZ x) {
+const vec_ZZ encrypt(const mat_ZZ& T, const vec_ZZ& x) {
 	mat_ZZ I;
 	ident(I, x.length());
 	return keySwitch(keySwitchMatrix(I, T), w * x);
@@ -226,20 +219,20 @@ vec_ZZ encrypt(mat_ZZ T, vec_ZZ x) {
 
 
 
-vec_ZZ addVectors(vec_ZZ c1, vec_ZZ c2){
+const vec_ZZ addVectors(const vec_ZZ& c1, const vec_ZZ& c2){
 	return c1 + c2;
 }
 
-vec_ZZ linearTransform(mat_ZZ M, vec_ZZ c){
+const vec_ZZ linearTransform(const mat_ZZ& M, const vec_ZZ& c){
 	return M * getBitVector(c);
 }
 
-mat_ZZ linearTransformClient(mat_ZZ G, mat_ZZ S, mat_ZZ T){
+const mat_ZZ linearTransformClient(const mat_ZZ& G, const mat_ZZ& S, const mat_ZZ& T){
 	return keySwitchMatrix(G * S, T);
 }
 
 
-vec_ZZ innerProd(vec_ZZ c1, vec_ZZ c2, mat_ZZ M){
+const vec_ZZ innerProd(const vec_ZZ& c1, const vec_ZZ& c2, const mat_ZZ& M){
 	mat_ZZ cc1;
 	mat_ZZ cc2;
 	mat_ZZ cc;
@@ -262,7 +255,7 @@ vec_ZZ innerProd(vec_ZZ c1, vec_ZZ c2, mat_ZZ M){
 	return M * getBitVector(output);
 }
 
-mat_ZZ innerProdClient(mat_ZZ T){
+const mat_ZZ innerProdClient(const mat_ZZ& T){
 	mat_ZZ S = getSecretKey(T);
 	mat_ZZ tvsts = transpose(vectorize(transpose(S) * S));
 	mat_ZZ mvsts = copyRows(tvsts, T.NumRows());
@@ -272,7 +265,7 @@ mat_ZZ innerProdClient(mat_ZZ T){
 
 
 
-mat_ZZ copyRows(mat_ZZ row, long numrows){
+const mat_ZZ copyRows(const mat_ZZ& row, long numrows){
 	mat_ZZ ans;
 	ans.SetDims(numrows, row.NumCols());
 	for (int i=0; i<ans.NumRows(); ++i){
@@ -283,7 +276,7 @@ mat_ZZ copyRows(mat_ZZ row, long numrows){
 	return ans;
 }
 
-mat_ZZ vectorize(mat_ZZ M){
+const mat_ZZ vectorize(const mat_ZZ& M){
 	mat_ZZ ans;
 	ans.SetDims(M.NumRows() * M.NumCols(), 1);
 	for (int i=0; i<M.NumRows(); ++i){
@@ -307,18 +300,18 @@ int main() {
 
 	string operation;
 	while (cin >> operation) {
-		cerr << "Operation: " << operation << endl;
+		//cerr << "Operation: " << operation << endl;
 
 		if (operation == "vector") {
 			vec_ZZ v;
 			cin >> v;
-			cerr << "Vector (" << v.length() << ")" << endl;
+			//cerr << "Vector (" << v.length() << ")" << endl;
 			vectors.push(v);
 
 		} else if (operation == "matrix") {
 			mat_ZZ m;
 			cin >> m;
-			cerr << "Matrix (" << m.NumRows() << ", " << m.NumCols() << ")" << endl;
+			//cerr << "Matrix (" << m.NumRows() << ", " << m.NumCols() << ")" << endl;
 			matrices.push(m);
 
 		} else if (operation == "duplicate-vector") {

@@ -66,7 +66,16 @@ def getLinearTransformations(keySwitch):
 	import requests as rq
 	global post
 	# 18.111.110.103
-	post = rq.post('http://0.0.0.0:8000/search', data={'keySwitch': repr(keySwitch)})
+	# 0.0.0.0
+	success = False
+	while not success:
+		try:
+			post = rq.post('http://18.111.110.103:8000/search', data={'keySwitch': repr(keySwitch)})
+			success = True
+		except:
+			print "Failed.  Trying again!"
+	
+	print "Result: ", repr(post.text)
 	return tuple(tuple(int(y.strip().strip('L')) for y in x.strip('(').strip(')').split(',')) for x in post.text.splitlines())
 
 
