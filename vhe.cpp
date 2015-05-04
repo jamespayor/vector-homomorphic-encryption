@@ -306,6 +306,7 @@ int main() {
 		if (operation == "vector") {
 			vec_ZZ v;
 			cin >> v;
+			cerr << "Vector (" << v.length() << ")" << endl;
 			vectors.push(v);
 
 		} else if (operation == "matrix") {
