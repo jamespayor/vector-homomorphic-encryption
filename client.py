@@ -35,49 +35,40 @@ def flatten(x):
 def flatzip(*args):
 	return list(flatten(zip(*args)))
 
-def classify(text):
+def getSecretKey():
+	#import cPickle as pk
+	#return pk.load(open('secretKey.pk'))
+	return 'vector ' + open('secretKey.txt').read()
 
-	feature_vector = get_feature_vector(text)
+def searchResults(text):
 
-	feature_vector_splits = []
-	split = get_split()
-	index = 0
-	while index < len(feature_vector):
-		feature_vector_splits.append(feature_vector[index:index+split])
-		index += split
+	featureVector = get_feature_vector(text)
+	weightMatrix = (tuple(featureVector),)
 
-	print "Getting secret keys..."
-	secretKeysCommands = flatzip(inf('random-matrix'), map(len, feature_vector_splits), inf('duplicate-matrix'), inf('get-secret-key'))
-	secretKeysAndTs = evaluate(secretKeysCommands)
-	secretKeyTs = secretKeysAndTs[::2]
-	secretKeys = secretKeysAndTs[1::2]
+	print "Loading secret key..."
+	secretKey = getSecretKey();
+	
+	T, S = evaluate(['random-matrix', 1, 1, 'duplicate-matrix', 'get-secret-key'])
+	keySwitch = evaluate([weightMatrix, secretKey, T, 'linear-transform-key-switch'])
 
-	print "Getting ciphertexts..."
-	encryptCommands = flatzip(feature_vector_splits, secretKeyTs, inf('encrypt'))
-	ciphertexts = evaluate(encryptCommands)
+	print "HIII!"
+	encryptedResults = getLinearTransformations(keySwitch)
 
-	print "Getting inner products..."
-	encryptedResults = getInnerProducts(ciphertexts)
+	results = evaluate(flatzip(inf(S), results, inf('decrypt')))
 
-	classification = dict()
-	for name, results in encryptedResults:
-		print "Decrypting inner products for '%s'..." % name
-		decryptCommands = flatzip(results, secretKeys, inf('inner-product-no-switch-decrypt'))
-		decryptedResults = evaluate(decryptCommands)
-		#print decryptedResults
-		classification[name] = sum(flatten(decryptedResults))
+	return results
 
-	return classification
 
-def getInnerProducts(ciphertexts):
-	from server import get_inner_products
-	return get_inner_products(ciphertexts)
+def getLinearTransformations(keySwitch):
+	import requests as rq
+	print rq.post('http://127.0.0.1:8000/search', data={'keySwitch': str(keySwitch)}).text
+	raise Exception
 
 
 
 from sys import stdin
 text = stdin.read()
 
-print '\n'.join(map(str,classify(text).items()))
+print '\n'.join(map(str,searchResults(text)))
 
 

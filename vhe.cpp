@@ -227,8 +227,7 @@ vec_ZZ linearTransform(mat_ZZ M, vec_ZZ c){
 	return M * getBitVector(c);
 }
 
-mat_ZZ linearTransformClient(mat_ZZ T, mat_ZZ G){
-	mat_ZZ S = getSecretKey(T);
+mat_ZZ linearTransformClient(mat_ZZ G, mat_ZZ S, mat_ZZ T){
 	return keySwitchMatrix(G * S, T);
 }
 
@@ -330,9 +329,10 @@ int main() {
 			vectors.push(linearTransform(m, v));
 
 		} else if (operation == "linear-transform-key-switch") {
-			mat_ZZ T = matrices.top(); matrices.pop();
 			mat_ZZ G = matrices.top(); matrices.pop();
-			matrices.push(linearTransformClient(T, G));
+			mat_ZZ S = matrices.top(); matrices.pop();
+			mat_ZZ T = matrices.top(); matrices.pop();
+			matrices.push(linearTransformClient(G, S, T));
 
 		} else if (operation == "inner-product") {
 			vec_ZZ v1 = vectors.top(); vectors.pop();
@@ -350,9 +350,9 @@ int main() {
 			vectors.push(keySwitch(m, v));
 
 		} else if (operation == "random-matrix") {
-			int dimension;
-			cin >> dimension;
-			matrices.push(getRandomMatrix(dimension, dimension, tBound));
+			int rows, cols;
+			cin >> rows >> cols;
+			matrices.push(getRandomMatrix(rows, cols, tBound));
 
 		} else if (operation == "identity") {
 			int rows;

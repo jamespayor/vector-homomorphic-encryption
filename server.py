@@ -23,10 +23,10 @@ def route_index():
 def route_features():
     return repr(features)
 
-@app.route('/classify', methods=['GET', 'POST'])
-def route_classify():
-    features = tuple(map(int,(x.strip().strip('(') for x in t.strip().strip('(').strip(')').split(',') if x.strip().strip('('))) for t in request.args['features'].split(')') if t.strip())
-    results = get_inner_products(features)
+@app.route('/search', methods=['GET', 'POST'])
+def route_search():
+    keySwitchMatrix = tuple(y for y in (tuple(int(x) for x in things if x.strip()) for things in (thing.replace('(','').split(',') for thing in request.form['keySwitch'].split(')'))) if y)
+    results = get_linear_transformation(testX[:500], keySwitchMatrix)
     return '\n'.join('%s %r' % result for result in results)
 
 def inf(x):
@@ -49,14 +49,12 @@ def loadFeatures():
 def get_linear_transformation(features,keySwitchMatrix):
     results = list()
     from hevector import evaluate
-    res = evaluate(flatzip(keySwitchMatrix, features, inf('linear-transform')))
+    res = evaluate(flatzip(inf(keySwitchMatrix), features, inf('linear-transform')))
     return results
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
-    (testX,testY) = loadFeatures()
-    testX = tuple(map(tuple,testX))
+    testX, testY = loadFeatures()
+    testX = tuple(map(lambda x: tuple(map(int, x)),testX))
     testY = tuple(map(int,testY))
-    print "loaded"
-    results = get_linear_transformation(testX[0:500],keySwitchMatrix)
-    
+    app.run(host='0.0.0.0', port=8000, debug=True)
+
