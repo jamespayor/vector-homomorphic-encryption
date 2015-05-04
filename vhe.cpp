@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <cassert>
 //#include <NTL/mat_ZZ_p.h>
@@ -296,6 +297,8 @@ mat_ZZ vectorize(mat_ZZ M){
 
 
 int main() {
+	ifstream cin("vhe.in");
+
 	cin.tie(NULL);
 	ios_base::sync_with_stdio(false);
 
