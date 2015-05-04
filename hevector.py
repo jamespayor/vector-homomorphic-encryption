@@ -39,7 +39,9 @@ def evaluate(operations, DEBUG=False):
     if DEBUG:
         print inp
         print
-    output, error = Popen(['vhe.exe'], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True).communicate(inp)
+    with f as open('vhe.in', 'w'):
+        f.write(inp)
+    output, error = Popen(['./vhe'], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True).communicate('')
     if DEBUG:
         print output
         print
