@@ -296,6 +296,9 @@ mat_ZZ vectorize(mat_ZZ M){
 
 
 int main() {
+	cin.tie(NULL);
+	ios_base::sync_with_stdio(false);
+
 	stack<vec_ZZ> vectors;
 	stack<mat_ZZ> matrices;
 
