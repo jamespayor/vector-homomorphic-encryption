@@ -27,7 +27,7 @@ def route_features():
 def route_search():
     keySwitchMatrix = tuple(y for y in (tuple(int(x.strip().strip('L')) for x in things if x.strip()) for things in (thing.replace('(','').split(',') for thing in request.form['keySwitch'].split(')'))) if y)
     results = get_linear_transformation(testX, keySwitchMatrix)
-    return '\n'.join('%s %r' % result for result in results)
+    return '\n'.join(map(repr, result))
 
 def inf(x):
     while True:
