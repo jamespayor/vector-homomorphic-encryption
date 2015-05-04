@@ -127,7 +127,19 @@ del trainW
 del testW
 print "Finished Loading Data: ", time.clock()- start, "secs"
 
+#store in file
+def storeFeatures(testX, testY):
+    import cPickle as pk
+    pk.dump(testX, open('testX.pk','w'))
+    pk.dump(testY, open('testY.pk','w'))
 
+def loadFeatures():
+    import cPickle as pk
+    return map(pk.load, (open('testX.pk'), open('testY.pk')))
+    
+#storeFeatures(testX,testY)
+(testX,testY) = loadFeatures()
+print "loaded"
 
 def trainNB(trainX,trainY,testX,testY,samples,limit):
     start = time.clock()
