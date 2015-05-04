@@ -1,11 +1,11 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
-#include <NTL/mat_ZZ_p.h>
+//#include <NTL/mat_ZZ_p.h>
 #include <NTL/mat_ZZ.h>
-#include <NTL/ZZ_p.h>
+//#include <NTL/ZZ_p.h>
 #include <NTL/ZZ.h>
-#include <NTL/vec_ZZ_p.h>
+//#include <NTL/vec_ZZ_p.h>
 #include <NTL/vec_ZZ.h>
 #include <cmath>
 #include <stack>
@@ -13,7 +13,8 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ w(1ll<<40ll);
+const ZZ twoToTheTwenty(1 << 20);
+const ZZ w(twoToTheTwenty*twoToTheTwenty);
 ZZ aBound(10000), tBound(aBound), eBound(10000);
 int l = 100;
 
@@ -59,13 +60,6 @@ vec_ZZ innerProd(vec_ZZ c1, vec_ZZ c2, mat_ZZ M);
 // returns M, the key switch matrix from vec(S^t S) to S,
 // to be sent to the server
 mat_ZZ innerProdClient(mat_ZZ T);
-
-// computes an inner product, given two ciphertexts and the keyswitch matrix
-vec_ZZ innerProdNoSwitch(vec_ZZ c1, vec_ZZ c2);
-
-// returns M, the key switch matrix from vec(S^t S) to S,
-// to be sent to the server
-vec_ZZ innerProdNoSwitchDecrypt(vec_ZZ cc, mat_ZZ T);
 
 // returns a column vector
 mat_ZZ vectorize(mat_ZZ M);
@@ -234,9 +228,7 @@ vec_ZZ linearTransform(mat_ZZ M, vec_ZZ c){
 }
 
 mat_ZZ linearTransformClient(mat_ZZ T, mat_ZZ G){
-	mat_ZZ I;
-	ident(I, T.NumRows());
-	mat_ZZ S = hCat(I, T);
+	mat_ZZ S = getSecretKey(T);
 	return keySwitchMatrix(G * S, T);
 }
 
@@ -265,43 +257,10 @@ vec_ZZ innerProd(vec_ZZ c1, vec_ZZ c2, mat_ZZ M){
 }
 
 mat_ZZ innerProdClient(mat_ZZ T){
-	mat_ZZ I;
-	ident(I, T.NumRows());
-	mat_ZZ S = hCat(I, T);
+	mat_ZZ S = getSecretKey(T);
 	mat_ZZ tvsts = transpose(vectorize(transpose(S) * S));
 	mat_ZZ mvsts = copyRows(tvsts, T.NumRows());
 	return keySwitchMatrix(mvsts, T);
-}
-
-
-
-
-vec_ZZ innerProdNoSwitch(vec_ZZ c1, vec_ZZ c2){
-	mat_ZZ cc1;
-	mat_ZZ cc2;
-	mat_ZZ cc;
-
-	cc1.SetDims(c1.length(), 1);
-	for (int i=0; i<c1.length(); ++i){
-		cc1[i][0] = c1[i];
-	}
-	cc2.SetDims(1, c2.length());
-	for (int i=0; i<c2.length(); ++i){
-		cc2[0][i] = c2[i];
-	}
-	cc = vectorize(cc1 * cc2);
-
-	vec_ZZ output;
-	output.SetLength(cc.NumRows());
-	for (int i=0; i<cc.NumRows(); i++) {
-		output[i] = cc[i][0];
-	}
-	return output;
-}
-
-vec_ZZ innerProdNoSwitchDecrypt(vec_ZZ cc, mat_ZZ S){
-	mat_ZZ tvsts = transpose(vectorize(S));
-	return decrypt(tvsts, cc);
 }
 
 
@@ -331,8 +290,7 @@ mat_ZZ vectorize(mat_ZZ M){
 
 
 
-int main()
-{
+int main() {
 	stack<vec_ZZ> vectors;
 	stack<mat_ZZ> matrices;
 
@@ -422,16 +380,6 @@ int main()
 			vec_ZZ c = vectors.top(); vectors.pop();
 			vectors.push(decrypt(S, c));
 
-		} else if (operation == "inner-product-no-switch") {
-			vec_ZZ c1 = vectors.top(); vectors.pop();
-			vec_ZZ c2 = vectors.top(); vectors.pop();
-			vectors.push(innerProdNoSwitch(c1, c2));
-
-		} else if (operation == "inner-product-no-switch-decrypt") {
-			vec_ZZ c = vectors.top(); vectors.pop();
-			mat_ZZ S = matrices.top(); matrices.pop();
-			vectors.push(innerProdNoSwitchDecrypt(c, S));
-
 		} else {
 			cerr << "Unknown command: " << operation << endl;
 		}
@@ -471,8 +419,8 @@ int main()
 	// mat_ZZ S = getSecretKey(T);
 	// vec_ZZ c1 = encrypt(T, x1);
 	// vec_ZZ c2 = encrypt(T, x2);
-	
-	
+
+
 
 	// // Testing for inner product no switch
 	// vec_ZZ cc = innerProdNoSwitch(x1, c2);
