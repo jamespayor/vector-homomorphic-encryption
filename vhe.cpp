@@ -14,9 +14,9 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ w(1 << 30);
+const ZZ w(1ll << 40ll);
 ZZ aBound(1000), tBound(aBound), eBound(1000);
-int l = 50;
+int l = 100;
 
 const mat_ZZ hCat(const mat_ZZ& A, const mat_ZZ& B);
 const mat_ZZ vCat(const mat_ZZ& A, const mat_ZZ& B);
