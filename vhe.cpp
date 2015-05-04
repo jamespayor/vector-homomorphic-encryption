@@ -203,9 +203,15 @@ vec_ZZ decrypt(mat_ZZ S, vec_ZZ c) {
 }
 
 mat_ZZ keySwitchMatrix(mat_ZZ S, mat_ZZ T) {
+	cerr << "keySwitch time!" << endl;
+	cerr << "S(" << S.NumRows() << ", " << S.NumCols() << ")" << endl;
+	cerr << "T(" << T.NumRows() << ", " << T.NumCols() << ")" << endl;
 	mat_ZZ Sstar = getBitMatrix(S);
+	cerr << "Sstar(" << Sstar.NumRows() << ", " << Sstar.NumCols() << ")" << endl;
 	mat_ZZ A = getRandomMatrix(T.NumCols(),Sstar.NumCols(),aBound);
+	cerr << "A(" << A.NumRows() << ", " << A.NumCols() << ")" << endl;
 	mat_ZZ E = getRandomMatrix(Sstar.NumRows(),Sstar.NumCols(),eBound);
+	cerr << "E(" << E.NumRows() << ", " << E.NumCols() << ")" << endl;
 	mat_ZZ M = vCat(Sstar + E - T*A, A);
 	return M;
 }
@@ -295,6 +301,7 @@ int main() {
 
 	string operation;
 	while (cin >> operation) {
+		cerr << "Operation: " << operation << endl;
 
 		if (operation == "vector") {
 			vec_ZZ v;
@@ -304,6 +311,7 @@ int main() {
 		} else if (operation == "matrix") {
 			mat_ZZ m;
 			cin >> m;
+			cerr << "Matrix (" << m.NumRows() << ", " << m.NumCols() << ")" << endl;
 			matrices.push(m);
 
 		} else if (operation == "duplicate-vector") {
@@ -329,9 +337,9 @@ int main() {
 			vectors.push(linearTransform(m, v));
 
 		} else if (operation == "linear-transform-key-switch") {
-			mat_ZZ G = matrices.top(); matrices.pop();
-			mat_ZZ S = matrices.top(); matrices.pop();
 			mat_ZZ T = matrices.top(); matrices.pop();
+			mat_ZZ S = matrices.top(); matrices.pop();
+			mat_ZZ G = matrices.top(); matrices.pop();
 			matrices.push(linearTransformClient(G, S, T));
 
 		} else if (operation == "inner-product") {

@@ -25,9 +25,10 @@ def route_features():
 
 @app.route('/search', methods=['GET', 'POST'])
 def route_search():
-    keySwitchMatrix = tuple(y for y in (tuple(int(x) for x in things if x.strip()) for things in (thing.replace('(','').split(',') for thing in request.form['keySwitch'].split(')'))) if y)
-    results = get_linear_transformation(testX[:500], keySwitchMatrix)
-    return '\n'.join('%s %r' % result for result in results)
+    keySwitchMatrix = tuple(y for y in (tuple(int(x.strip().strip('L')) for x in things if x.strip()) for things in (thing.replace('(','').split(',') for thing in request.form['keySwitch'].split(')'))) if y)
+    results = get_linear_transformation(testX[:10], keySwitchMatrix)
+    text = '\n'.join(map(repr, results))
+    return text
 
 def inf(x):
     while True:
@@ -47,10 +48,8 @@ def loadFeatures():
 
 
 def get_linear_transformation(features,keySwitchMatrix):
-    results = list()
     from hevector import evaluate
-    res = evaluate(flatzip(inf(keySwitchMatrix), features, inf('linear-transform')))
-    return results
+    return evaluate([keySwitchMatrix] + flatzip(inf('duplicate-matrix'), features, inf('linear-transform')))[:-1]
 
 if __name__ == '__main__':
     testX, testY = loadFeatures()

@@ -38,7 +38,7 @@ def flatzip(*args):
 def getSecretKey():
 	#import cPickle as pk
 	#return pk.load(open('secretKey.pk'))
-	return 'vector ' + open('secretKey.txt').read()
+	return 'matrix ' + open('secretKey.txt').read()
 
 def searchResults(text):
 
@@ -48,22 +48,26 @@ def searchResults(text):
 	print "Loading secret key..."
 	secretKey = getSecretKey();
 	
+	print "Getting key switch matrix..."
 	T, S = evaluate(['random-matrix', 1, 1, 'duplicate-matrix', 'get-secret-key'])
-	keySwitch = evaluate([weightMatrix, secretKey, T, 'linear-transform-key-switch'])
+	print "(Computing it now...)"
+	keySwitch, = evaluate([weightMatrix, secretKey, T, 'linear-transform-key-switch'])
 
-	print "HIII!"
+	print "Getting encrypted results..."
 	encryptedResults = getLinearTransformations(keySwitch)
 
-	results = evaluate(flatzip(inf(S), results, inf('decrypt')))
+	print "Decrypting results..."
+	results = evaluate([S] + flatzip(inf('duplicate-matrix'), encryptedResults, inf('decrypt')))[:-1]
 
-	return results
+	return (r[0] for r in results)
 
 
 def getLinearTransformations(keySwitch):
 	import requests as rq
-	print rq.post('http://127.0.0.1:8000/search', data={'keySwitch': str(keySwitch)}).text
-	raise Exception
-
+	global post
+	# 18.111.110.103
+	post = rq.post('http://0.0.0.0:8000/search', data={'keySwitch': repr(keySwitch)})
+	return tuple(tuple(int(y.strip().strip('L')) for y in x.strip('(').strip(')').split(',')) for x in post.text.splitlines())
 
 
 from sys import stdin
