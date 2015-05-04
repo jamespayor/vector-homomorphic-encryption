@@ -14,10 +14,9 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ twoToTheTwenty(1 << 20);
-const ZZ w(twoToTheTwenty*twoToTheTwenty);
-ZZ aBound(10000), tBound(aBound), eBound(10000);
-int l = 100;
+const ZZ w(1 << 25);
+ZZ aBound(10000), tBound(aBound), eBound(10);
+int l = 40;
 
 const mat_ZZ hCat(const mat_ZZ& A, const mat_ZZ& B);
 const mat_ZZ vCat(const mat_ZZ& A, const mat_ZZ& B);
@@ -295,22 +294,22 @@ int main() {
 	cin.tie(NULL);
 	ios_base::sync_with_stdio(false);
 
-	stack<vec_ZZ> vectors;
-	stack<mat_ZZ> matrices;
+	stack<vec_ZZ*> vectors;
+	stack<mat_ZZ*> matrices;
 
 	string operation;
 	while (cin >> operation) {
 		//cerr << "Operation: " << operation << endl;
 
 		if (operation == "vector") {
-			vec_ZZ v;
-			cin >> v;
+			vec_ZZ* v = new vec_ZZ();
+			cin >> (*v);
 			//cerr << "Vector (" << v.length() << ")" << endl;
 			vectors.push(v);
 
 		} else if (operation == "matrix") {
-			mat_ZZ m;
-			cin >> m;
+			mat_ZZ* m = new mat_ZZ();
+			cin >> (*m);
 			//cerr << "Matrix (" << m.NumRows() << ", " << m.NumCols() << ")" << endl;
 			matrices.push(m);
 
@@ -321,72 +320,96 @@ int main() {
 			matrices.push(matrices.top());
 
 		} else if (operation == "add") {
-			vec_ZZ v1 = vectors.top(); vectors.pop();
-			vec_ZZ v2 = vectors.top(); vectors.pop();
-			vectors.push(addVectors(v1, v2));
+			vec_ZZ& v1 = *vectors.top(); vectors.pop();
+			vec_ZZ& v2 = *vectors.top(); vectors.pop();
+			vec_ZZ* v = new vec_ZZ();
+			(*v) = addVectors(v1, v2);
+			vectors.push(v);
 
 		} else if (operation == "scalar-multiply") {
 			ZZ x;
 			cin >> x;
-			vec_ZZ v = vectors.top(); vectors.pop();
-			vectors.push(v * x);
+			vec_ZZ& v = *vectors.top(); vectors.pop();
+			vec_ZZ* v2 = new vec_ZZ();
+			(*v2) = v * x;
+			vectors.push(v2);
 
 		} else if (operation == "linear-transform") {
-			vec_ZZ v = vectors.top(); vectors.pop();
-			mat_ZZ m = matrices.top(); matrices.pop();
-			vectors.push(linearTransform(m, v));
+			vec_ZZ& v = *vectors.top(); vectors.pop();
+			mat_ZZ& m = *matrices.top(); matrices.pop();
+			vec_ZZ* r = new vec_ZZ();
+			(*r) = linearTransform(m, v);
+			vectors.push(r);
 
 		} else if (operation == "linear-transform-key-switch") {
-			mat_ZZ T = matrices.top(); matrices.pop();
-			mat_ZZ S = matrices.top(); matrices.pop();
-			mat_ZZ G = matrices.top(); matrices.pop();
-			matrices.push(linearTransformClient(G, S, T));
+			mat_ZZ& T = *matrices.top(); matrices.pop();
+			mat_ZZ& S = *matrices.top(); matrices.pop();
+			mat_ZZ& G = *matrices.top(); matrices.pop();
+			mat_ZZ* m = new mat_ZZ();
+			(*m) = linearTransformClient(G, S, T);
+			matrices.push(m);
 
 		} else if (operation == "inner-product") {
-			vec_ZZ v1 = vectors.top(); vectors.pop();
-			vec_ZZ v2 = vectors.top(); vectors.pop();
-			mat_ZZ m = matrices.top(); matrices.pop();
-			vectors.push(innerProd(v1, v2, m));
+			vec_ZZ& v1 = *vectors.top(); vectors.pop();
+			vec_ZZ& v2 = *vectors.top(); vectors.pop();
+			mat_ZZ& m = *matrices.top(); matrices.pop();
+			vec_ZZ *v = new vec_ZZ();
+			(*v) = innerProd(v1, v2, m);
+			vectors.push(v);
 
 		} else if (operation == "inner-product-key-switch") {
-			mat_ZZ T = matrices.top(); matrices.pop();
-			matrices.push(innerProdClient(T));
+			mat_ZZ& T = *matrices.top(); matrices.pop();
+			mat_ZZ *m = new mat_ZZ();
+			(*m) = innerProdClient(T);
+			matrices.push(m);
 
 		} else if (operation == "key-switch") {
-			vec_ZZ v = vectors.top(); vectors.pop();
-			mat_ZZ m = matrices.top(); matrices.pop();
-			vectors.push(keySwitch(m, v));
+			vec_ZZ& v = *vectors.top(); vectors.pop();
+			mat_ZZ& m = *matrices.top(); matrices.pop();
+			vec_ZZ *v2 = new vec_ZZ();
+			(*v2) = keySwitch(m, v);
+			vectors.push(v2);
 
 		} else if (operation == "random-matrix") {
 			int rows, cols;
 			cin >> rows >> cols;
-			matrices.push(getRandomMatrix(rows, cols, tBound));
+			mat_ZZ *m = new mat_ZZ();
+			(*m) = getRandomMatrix(rows, cols, tBound);
+			matrices.push(m);
 
 		} else if (operation == "identity") {
 			int rows;
 			cin >> rows;
-			mat_ZZ I;
-			ident(I, rows);
+			mat_ZZ *I = new mat_ZZ();
+			ident(*I, rows);
 			matrices.push(I);
 
 		} else if (operation == "key-switch-matrix") {
-			mat_ZZ T = matrices.top(); matrices.pop();
-			mat_ZZ S = matrices.top(); matrices.pop();
-			matrices.push(keySwitchMatrix(S, T));
+			mat_ZZ& T = *matrices.top(); matrices.pop();
+			mat_ZZ& S = *matrices.top(); matrices.pop();
+			mat_ZZ *m = new mat_ZZ();
+			(*m) = keySwitchMatrix(S, T);
+			matrices.push(m);
 
 		} else if (operation == "get-secret-key") {
-			mat_ZZ T = matrices.top(); matrices.pop();
-			matrices.push(getSecretKey(T));
+			mat_ZZ &T = *matrices.top(); matrices.pop();
+			mat_ZZ *s = new mat_ZZ();
+			(*s) = getSecretKey(T);
+			matrices.push(s);
 
 		} else if (operation == "encrypt") {
-			mat_ZZ T = matrices.top(); matrices.pop();
-			vec_ZZ x = vectors.top(); vectors.pop();
-			vectors.push(encrypt(T, x));
+			mat_ZZ& T = *matrices.top(); matrices.pop();
+			vec_ZZ& x = *vectors.top(); vectors.pop();
+			vec_ZZ *v = new vec_ZZ();
+			(*v) = encrypt(T, x);
+			vectors.push(v);
 
 		} else if (operation == "decrypt") {
-			mat_ZZ S = matrices.top(); matrices.pop();
-			vec_ZZ c = vectors.top(); vectors.pop();
-			vectors.push(decrypt(S, c));
+			mat_ZZ& S = *matrices.top(); matrices.pop();
+			vec_ZZ& c = *vectors.top(); vectors.pop();
+			vec_ZZ *x = new vec_ZZ();
+			(*x) = decrypt(S, c);
+			vectors.push(x);
 
 		} else {
 			cerr << "Unknown command: " << operation << endl;
@@ -396,7 +419,7 @@ int main() {
 
 	stack<vec_ZZ> vectors2;
 	while (vectors.size()) {
-		vectors2.push(vectors.top()); vectors.pop();
+		vectors2.push(*vectors.top()); vectors.pop();
 	}
 	while (vectors2.size()) {
 		cout << vectors2.top() << endl; vectors2.pop();
@@ -404,7 +427,7 @@ int main() {
 
 	stack<mat_ZZ> matrices2;
 	while (matrices.size()) {
-		matrices2.push(matrices.top()); matrices.pop();
+		matrices2.push(*matrices.top()); matrices.pop();
 	}
 	while (matrices2.size()) {
 		cout << matrices2.top() << endl; matrices2.pop();
