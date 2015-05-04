@@ -13,9 +13,9 @@
 using namespace std;
 using namespace NTL;
 
-const ZZ w(1<<20);
-ZZ aBound(10000), tBound(aBound), eBound(10);
-int l = 50;
+const ZZ w(1ll<<40ll);
+ZZ aBound(10000), tBound(aBound), eBound(10000);
+int l = 100;
 
 mat_ZZ hCat(mat_ZZ A, mat_ZZ B);
 mat_ZZ vCat(mat_ZZ A, mat_ZZ B);
@@ -455,86 +455,85 @@ int main()
 	}
 
 
-	//// Testing for the 3 fundamental operations:
-	//    const int N = 40;
-	//	vec_ZZ x1;
-	//	vec_ZZ x2;
-	//	x1.SetLength(N);
-	//	x2.SetLength(N);
-	//	for(int i = 0; i < N; ++i) {
-	//		x1[i] = RandomBnd(10000);
-	//		x2[i] = RandomBnd(10000);
-	//	}
-	//	cout << x1 << endl;
-	//	cout << x2 << endl;
-	//	mat_ZZ T = getRandomMatrix(N, 1, aBound);
-	//	vec_ZZ c1 = encrypt(T, x1);
-	//	vec_ZZ c2 = encrypt(T, x2);
-	//
-	//
-	//// testing for inner product no switch
-	//
-	//    vec_ZZ cc = innerProdNoSwitch(c1, c2);
-	//    vec_ZZ dxx = innerProdNoSwitchDecrypt(cc, T);
-	//    ZZ xx;
-	//    InnerProduct(xx, x1, x2);
-	//
-	//    cout << xx << endl;
-	//    cout << dxx[0] << endl;
-	//    cout << xx - dxx[0] << endl;
+	// // Testing for the 3 fundamental operations:
+	// const int N = 10;
+	// vec_ZZ x1;
+	// vec_ZZ x2;
+	// x1.SetLength(N);
+	// x2.SetLength(N);
+	// for(int i = 0; i < N; ++i) {
+	// 	x1[i] = RandomBnd(10000);
+	// 	x2[i] = RandomBnd(10000);
+	// }
+	// cout << x1 << endl;
+	// cout << x2 << endl;
+	// mat_ZZ T = getRandomMatrix(N, N, tBound);
+	// mat_ZZ S = getSecretKey(T);
+	// vec_ZZ c1 = encrypt(T, x1);
+	// vec_ZZ c2 = encrypt(T, x2);
+	
+	
+
+	// // Testing for inner product no switch
+	// vec_ZZ cc = innerProdNoSwitch(x1, c2);
+	// vec_ZZ dxx = innerProdNoSwitchDecrypt(cc, S);
+	// ZZ xx;
+	// InnerProduct(xx, x1, x2);
+
+	// cout << xx << endl;
+	// cout << dxx[0] << endl;
+	// cout << xx - dxx[0] << endl;
 
 
-	//// testing for inner product
-	//    mat_ZZ M;
-	//    vec_ZZ cc;
-	//    vec_ZZ dxx;
-	//    ZZ xx;
-	//
-	//    M = innerProdClient(T);
-	//    cc = innerProd(c1, c2, M);
-	//    dxx = decrypt(getSecretKey(T), cc);
-	//    InnerProduct(xx, x1, x2);
-	//
-	//
-	//    cout << xx << endl;
-	//    cout << dxx[0] << endl;
-	//    cout << xx - dxx[0] << endl;
+	// // Testing for inner product
+	// mat_ZZ M;
+	// vec_ZZ cc;
+	// vec_ZZ dxx;
+	// ZZ xx;
+
+	// M = innerProdClient(T);
+	// cc = innerProd(c1, c2, M);
+	// dxx = decrypt(getSecretKey(T), cc);
+	// InnerProduct(xx, x1, x2);
+
+
+	// cout << xx << endl;
+	// cout << dxx[0] << endl;
+	// cout << xx - dxx[0] << endl;
+
+
+	// // Testing for linear transform
+	// mat_ZZ G;
+	// mat_ZZ M;
+	// vec_ZZ cc;
+	// vec_ZZ dxx;
+	// vec_ZZ xx;
+
+	// G = getRandomMatrix(N, N, aBound);
+	// M = linearTransformClient(T, G);
+	// cc = linearTransform(M, c1);
+	// dxx = decrypt(getSecretKey(T), cc);
+	// xx = G * x1;
+
+	// cout << G << endl;
+	// cout << xx << endl;
+	// cout << dxx << endl;
+	// cout << xx - dxx << endl;
 
 
 
+	// // Testing for addition:
+	// vec_ZZ cplus;
+	// vec_ZZ dxplus;
+	// vec_ZZ xplus;
 
-	//// testing for linear transform
-	//    mat_ZZ G;
-	//    mat_ZZ M;
-	//    vec_ZZ cc;
-	//    vec_ZZ dxx;
-	//    vec_ZZ xx;
-	//
-	//    G = getRandomMatrix(N, N, aBound);
-	//    M = linearTransformClient(T, G);
-	//    cc = linearTransform(M, c1);
-	//    dxx = decrypt(getSecretKey(T), cc);
-	//    xx = G * x1;
-	//
-	//	cout << G << endl;
-	//	cout << xx << endl;
-	//	cout << dxx << endl;
-	//	cout << xx - dxx << endl;
+	// cplus = addn(c1, c2);
+	// dxplus = decrypt(getSecretKey(T), cplus);
+	// xplus = x1 + x2;
 
-
-
-	//// testing for addition:
-	//	vec_ZZ cplus;
-	//	vec_ZZ dxplus;
-	//	vec_ZZ xplus;
-	//
-	//	cplus = addn(c1, c2);
-	//	dxplus = decrypt(getSecretKey(T), cplus);
-	//	xplus = x1 + x2;
-	//
-	//	cout << xplus << endl;
-	//	cout << dxplus << endl;
-	//  cout << xplus - dxplus << endl;
+	// cout << xplus << endl;
+	// cout << dxplus << endl;
+	// cout << xplus - dxplus << endl;
 
 
 }
