@@ -227,11 +227,58 @@ Weighted Inner Product: $\bbx' = \bbx_1^T H \bbx_2$
 \vspace{.15in}
 \item{Classification
 	\itz {
-		\item{Want}
+		\item{Can run any polynomial classifier on the server's data (e.g. naive bayes, SVMs with polynomial kernels)}
+	}
+}
+\item{Feature extraction
+	\itz {
+		\item{We can generalize classification to give a low-dimensional representation of data vectors, which will conserve bandwidth over simply querying all the files.}
 	}
 }
 }
 \end{frame}
+
+
+\begin{frame}
+\frametitle{Demo}
+\itz{
+\item{We implemented the scheme, and two applications:}
+\itz{
+	\item{Private search on encrypted data (using TF-IDF relevance on common words)}
+	\item{Spam classification (using a naive-bayes model)}
+}
+\item{Server has encrypted word counts of 3500 common words for 200 Enron emails}
+\item{Server cannot learn our queries, or even distinguish between each type.}
+}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Live Demo!}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=3.5in]{live}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Conclusions}
+\itz{
+\item{In our demo, the scheme is slow due mainly to our lack of optimization.}
+\item{No overhead in addition, and multiplicative overhead in linear transformations and inner products equal to the number of bits involved.
+	\itz{
+		\item{(Note as given, inner products is slow, but we can combine this with a linear transformation step to reduce the work.)}
+	}
+}
+\item{This scheme compares well to fully homomorphic encryption by limiting scope of computation.
+	\itz{
+		\item{Benchmarks give that HElib achieves ~500 multiplications per second for small integers, orders of magnitude worse than our slowdown.}
+	}
+}
+}
+\end{frame}
+
 
 
 \begin{frame}{Bibliography}
