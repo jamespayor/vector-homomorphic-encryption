@@ -186,9 +186,18 @@ Weighted Inner Product: $\bbx' = \bbx_1^T H \bbx_2$
 \frametitle{Secrecy in the Scheme}
 
 \itz{
-\item{ Clients (Party B) calculate key-switch matrices based on operations }
-\item{ Server (Party A) calculates without knowing the operations }
+\item{ Clients (Party B) calculate key-switch matrices based on operation $f$}
+\item{ Server (Party A) performs the operation without knowing $f$}
+\item{ Relies on key-switch matrices being indistinguishable from random}
+
 }
+	
+\begin{block}{Learning with Error Problem (LWE)}
+\begin{center}
+Given $S$ and $M$, solving $S'M = S + E$ to find $S'$ is hard
+\end{center}
+\end{block}
+
 \vspace{.07in}
 \begin{figure}[ht]
 \centering
@@ -281,14 +290,5 @@ Weighted Inner Product: $\bbx' = \bbx_1^T H \bbx_2$
 
 
 
-\begin{frame}{Bibliography}
-\begin{thebibliography}{9}
-\bibitem{Rudin}
-  Walter Rudin,
-  \emph{Principles of mathematical analysis}.
-  McGraw-Hill Book Co.,
-  3rd Edition,
-  1976.
-\end{thebibliography}
-\end{frame}
+
 \end{document}
