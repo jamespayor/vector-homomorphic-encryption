@@ -14,7 +14,7 @@ def route_index():
     			without gaining access to any information about the message. </p>
     			<p> Get the features description from '/features' - each feature being a linear combination of word counts
     			in the document. </p>
-    			<p> Submit requests by POST with a 'features' tuple of vectors (tuples) to '/classify'. </p>
+    			<p> Submit requests by POST with the relevant transformation matrix (a tuple of tuples of integers) to '/transform'. </p>
     		</body>
     	</html>
     	'''
@@ -23,10 +23,14 @@ def route_index():
 def route_features():
     return repr(features)
 
-@app.route('/search', methods=['GET', 'POST'])
+@app.route('/transform', methods=['GET', 'POST'])
 def route_search():
+    print 'Getting key switch matrix...'
     keySwitchMatrix = tuple(y for y in (tuple(int(x.strip().strip('L')) for x in things if x.strip()) for things in (thing.replace('(','').split(',') for thing in request.form['keySwitch'].split(')'))) if y)
-    results = get_linear_transformation(testX[0:10], keySwitchMatrix)
+    print 'Done.  First entries of matrix:', keySwitchMatrix[0][:10]
+    print 'Getting linear transformations...'
+    results = get_linear_transformation(testX, keySwitchMatrix)
+    print 'Done.  First results:', results[:10]
     return '\n'.join(map(repr, results))
 
 def inf(x):
@@ -50,7 +54,8 @@ def get_linear_transformation(features,keySwitchMatrix):
     from hevector import evaluate
     return evaluate([keySwitchMatrix] + flatzip(inf('duplicate-matrix'), features, inf('linear-transform')))[:-1]
 
+testX, testY, testFileNames = loadFeatures()
+
 if __name__ == '__main__':
-    testX, testY, testFileNames = loadFeatures()
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=6856, debug=True)
 

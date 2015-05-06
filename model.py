@@ -8,5 +8,4 @@ probabilities = (
 
 weightings = dict(zip(('ham', 'spam'), (tuple(max(int(50*x + 1000), 0) for x in prob) for prob in probabilities)))
 
-split = 5
 
