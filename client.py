@@ -74,7 +74,7 @@ def getResults(weightMatrix):
 
 def getLinearTransformations(keySwitch):
 	import requests as rq
-	post = rq.post('http://0.0.0.0:6856/transform', data={'keySwitch': repr(keySwitch)})
+	post = rq.post('http://server.vhe.payor.com.au/transform', data={'keySwitch': repr(keySwitch)})
 	return tuple(tuple(int(y.strip().strip('L')) for y in x.strip('(').strip(')').split(',')) for x in post.text.splitlines())
 
 
@@ -141,5 +141,5 @@ def view(i):
 
 
 if __name__ == "__main__":
-	app.run(host='0.0.0.0', port=6857, debug=True)
+	app.run(host='0.0.0.0', port=80, debug=False)
 
