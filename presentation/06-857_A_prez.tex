@@ -167,12 +167,15 @@ Linear Transformation: $\bbx' = G\bbx$
 
 \begin{frame}{Details of the Three Supported Operations (con'd)}
 Weighted Inner Product: $\bbx' = \bbx_1^T H \bbx_2$
+\vspace{.07in}
 \itz{
-\item{Let $S'=\text{vec}(S^T H S)^T $}
-\item{Let $\bbc'=\left\lceil \frac{\text{vec}(\bbc_1 \bbc_2^T}{w} \right\rfloor$}
+\item{Note $(S\bbc_1)^T H (S\bbc_2) = w^2(\bbx_1^T H \bbx_2)+\bbe''$}
+%(w\bbx_1^T H \bbe_2 + w\bbe_1^T H \bbx_2 + \bbe_1^T H \bbe_2)
 \vspace{.07in}
-\item{Note $(S\bbc_1)^T H (S\bbc_2) = w^2(\bbx_1^T H \bbx_2)+(w\bbx_1^T H \bbe_2 + w\bbe_1^T H \bbx_2 + \bbe_1^T H \bbe_2)$}
-\vspace{.07in}
+\item{Note $\bbx_1^T M \bbx_2 = \text{vec}(\bbx_1 M \bbx_2^T)\cdot \text{vec}(M)$ and choose $M=S^T H S$}
+\vspace{.05in}
+\item{Let $S'=\text{vec}(S^T H S) $}
+\item{Let $\bbc'=\left\lceil \frac{\text{vec}(\bbc_1 \bbc_2^T)}{w} \right\rfloor$}
 \item{So $S'\bbc' = w(\bbx_1^T H \bbx_2) + \bbe'$}
 }
 \end{frame}
