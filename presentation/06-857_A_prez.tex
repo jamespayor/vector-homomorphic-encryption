@@ -223,6 +223,9 @@ Given $S$ and $M$, solving $S'M = S + E$ to find $S'$ is hard
 \end{frame}
 
 
+
+
+
 \begin{frame}
 \frametitle{Applications}
 
@@ -233,12 +236,13 @@ Given $S$ and $M$, solving $S'M = S + E$ to find $S'$ is hard
  	\item{Client wants to score each item to rank them}
 	}
  }
-\vspace{.15in}
+\vspace{.1in}
 \item{Classification
 	\itz {
 		\item{Can run any polynomial classifier on the server's data (e.g. naive bayes, SVMs with polynomial kernels)}
 	}
 }
+\vspace{.1in}
 \item{Feature extraction
 	\itz {
 		\item{We can generalize classification to give a low-dimensional representation of data vectors, which will conserve bandwidth over simply querying all the files.}
@@ -248,16 +252,26 @@ Given $S$ and $M$, solving $S'M = S + E$ to find $S'$ is hard
 \end{frame}
 
 
+
+
+
+
+
 \begin{frame}
 \frametitle{Demo}
 \itz{
 \item{We implemented the scheme, and two applications:}
+\vspace{.05in}
 \itz{
-	\item{Private search on encrypted data (using TF-IDF relevance on common words)}
+	\item{Private search on encrypted data \\(using TF-IDF relevance on common words)}
+	
+\vspace{.05in}
 	\item{Spam classification (using a naive-bayes model)}
 }
+\vspace{.1in}
 \item{Server has encrypted word counts of 3500 common words for 200 Enron emails}
-\item{Server cannot learn our queries, or even distinguish between each type.}
+\vspace{.1in}
+\item{Server can't learn our queries, or even distinguish between each type}
 }
 \end{frame}
 
@@ -274,12 +288,15 @@ Given $S$ and $M$, solving $S'M = S + E$ to find $S'$ is hard
 \begin{frame}
 \frametitle{Conclusions}
 \itz{
-\item{In our demo, the scheme is slow due mainly to our lack of optimization.}
-\item{No overhead in addition, and multiplicative overhead in linear transformations and inner products equal to the number of bits involved.
+\item{In our demo, scheme is slow due mainly to our lack of optimization.}
+\vspace{.1in}
+\item{No overhead in addition}
+\item{Multiplicative overhead in linear transformations and inner products equal to the number of bits involved.
 	\itz{
 		\item{(Note as given, inner products is slow, but we can combine this with a linear transformation step to reduce the work.)}
 	}
 }
+\vspace{.1in}
 \item{This scheme compares well to fully homomorphic encryption by limiting scope of computation.
 	\itz{
 		\item{Benchmarks give that HElib achieves ~500 multiplications per second for small integers, orders of magnitude worse than our slowdown.}
