@@ -55,20 +55,23 @@ def getSpamWeightMatrix():
 
 def getResults(weightMatrix):
 
-	print "Loading secret key..."
+	print "Client: Loading secret key..."
 	secretKey = getSecretKey();
 	
-	print "Getting key switch matrix..."
+	print "Client: Getting new secret key..."
 	T, S = evaluate(['random-matrix', len(weightMatrix), 1, 'duplicate-matrix', 'get-secret-key'])
-	print "(Computing it now...)"
+	print "Client: Getting key switch matrix..."
 	keySwitch, = evaluate([weightMatrix, secretKey, T, 'linear-transform-key-switch'])
 
-	print "Getting encrypted results..."
+	print "Client: Getting encrypted results from server..."
 	encryptedResults = getLinearTransformations(keySwitch)
 
-	print "Decrypting results..."
+	print "Client: Decrypting results..."
 	results = evaluate([S] + flatzip(inf('duplicate-matrix'), encryptedResults, inf('decrypt')))[:-1]
 
+	print "Client: Done."
+	print
+	print
 	return results
 
 
