@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Email Result - Homomorphic Encryption Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.4/lumen/bootstrap.min.css" rel="stylesheet" media="screen">
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="jumbotron">
+      <div class="row">
+        <div class="col-md-12">
+          <small><a href="/">Home</a></small>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h2> Email Result </h2>
+          <h3> {{ subject }} </h3>
+          <h4> Name: {{ name }} </h4>
+        </div>
+      </div>
+      
+      <div class="row" style="padding-top: 10px">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+          <pre>
+            {{ text }}
+          </pre>
+        </div>
+        <div class="col-md-1"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

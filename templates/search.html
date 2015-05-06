@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Search - Homomorphic Encryption Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.4/lumen/bootstrap.min.css" rel="stylesheet" media="screen">
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="jumbotron">
+      <div class="row">
+        <div class="col-md-12">
+          <small><a href="/">Back</a></small>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <h2> Search </h2>
+          <p> Perform a text search query on cloud-hosted encrypted email without revealing the search query to the server. </p>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="padding-top: -40px">
+      <div class="col-md-1"></div>
+      <div class="col-md-10">
+        <h3> Enter a query: </h3>
+        <form target="/search" method="POST">
+          <input type="text" name="text" style="width: 80%; font-size: large;"
+            {% if text %}
+              value="{{ text }}"
+            {% endif %}
+            >
+          <button type="submit" style="font-size: large;">Search</button>
+        </form>
+      </div>
+      <div class="col-md-1"></div>
+    </div>
+
+    {% if results %}
+      <div class="row" style="padding-top: 30px;">
+        <div class="col-md-12">
+          <h3> {{ results | length }} Results </h3>
+        </div>
+      </div>
+      <div class="row" style="padding-bottom: 60px;">
+        <div class="col-md-12">
+          {% for result in results %}
+            <div class="row">
+              <div class="col-md-10">
+                {{ result | safe }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if noResults %}
+      <div class="row" style="padding-top: 20px;">
+        <div class="col-md-12">
+          <h3> No Results </h3>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
