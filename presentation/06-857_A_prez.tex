@@ -140,6 +140,7 @@ Key switching from $S$ to $S'=[I,T]$:
 A 
 \end{pmatrix}$ for random matrix $A$, random noise matrix $E$}
 \item{Then $\bbc'=M\bbc$}
+\item{Encrypt: key-switching from $wI$ to desired $S'$}
 }
 \end{frame}
 
@@ -293,16 +294,20 @@ Given $S$ and $M$, solving $S'M = S + E$ to find $S'$ is hard
 \itz{
 \item{In our demo, scheme is slow due mainly to our lack of optimization.}
 \vspace{.1in}
-\item{No overhead in addition}
+\item{No overhead in addition of vectors}
 \item{Multiplicative overhead in linear transformations and inner products equal to the number of bits involved.
+		\vspace{.05in}
 	\itz{
 		\item{(Note as given, inner products is slow, but we can combine this with a linear transformation step to reduce the work.)}
 	}
 }
 \vspace{.1in}
 \item{This scheme compares well to fully homomorphic encryption by limiting scope of computation.
+		\vspace{.05in}
 	\itz{
-		\item{Benchmarks give that HElib achieves ~500 multiplications per second for small integers, orders of magnitude worse than our slowdown.}
+		\item{Benchmarks give that HElib achieves $\sim$1000x slowdown \\ evaluating dot products of small vectors.}
+		\vspace{.05in}
+		\item{This scheme hides the polynomial, and has less slowdown \\ (e.g. 100x for 100 bit numbers) }
 	}
 }
 }
