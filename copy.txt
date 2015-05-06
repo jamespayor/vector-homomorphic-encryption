@@ -1,0 +1,50 @@
+
+Applications
+
+
+Secrecy in the scheme
+
+- In order to perform linear transformations and weighted inner products, the secret keys involved effectively change, and the party computing the keyswitch matrices needs to know the operations.
+
+- Interestingly, the party with the encrypted data cannot determine the operations by the security of the scheme, well apart from whether they're additions, linear transformations, or inner products.  That is, the party that computes a polynomial in the encrypted data only learns the degree of the polynomial.
+
+- Most HE schemes consider giving a server encrypted data $E(x)$ and having the server compute $E(f(x))$, but instead this scheme lends itself to giving a server $E(f)$ and having it compute $E(f(x))$ with it's data $x$.
+
+
+Applications
+
+- The basic format we use is that there is some server with data in the form of integer vectors.  There is a client that wants to know some function of the vectors without revealing the function to the server.  This is directly supported by the fundamental operations of the scheme.  Further, the data on the server can be encrypted with a secret key known to the client - e.g. in cloud storage, where user data is hidden from the cloud.
+
+- Search:
+	- A server has vectors representing features of documents.  A client has a relevance function that is a polynomial in each vector.  The client's search query remains hidden from the server as it evaluates it on each document, and the document features can even be in encrypted form.
+
+- Classification:
+	- We can run any polynomial classifier we like using the server's data (such as naive bayes, and SVMs with certain kernels) without revealing the model to the server.
+
+- Feature extraction:
+	- We can generalize classification to give a low-dimensional representation of data vectors, which will conserve bandwidth over simply querying all the files.
+
+
+Demo
+
+- We implemented the scheme, as well as two applications over the Enron email dataset:
+	- Private search on encrypted data (using TF-IDF relevance on the 3000 most common words)
+	- Spam classification (using a naive-bayes model)
+
+- The server has an encrypted word-count vector for each document.  We deal with 3500 words and 200 documents, because anything else would be slow running single-threaded.  The server performs linear transformations, sending back low-dimensional data - the communication costs scale well with the number of documents.
+
+- The server cannot learn what queries we run - in fact, we could make it impossible to distinguish between search and spam-classification queries.
+
+~ Live Demo ~
+
+
+Conclusions
+
+- The scheme runs slowly in our demo, but mainly due to our implementation:
+	- The overhead in addition is non-existent.  Linear transformations are only slower than matrix operations by a factor of the number of bits involved in the integers (we use a generous 100 bits).
+
+- The scheme as given performs poorly on inner products in practice however, requiring the construction of a matrix with $n^3$ entries.  We found this prohibitive for anything other low dimensional data, but we found we can reduce the size to $n^2$ by immediately chaining the operation.  Again the overhead lies mainly in the number of bits involved.
+
+- The scheme compares very favourably in overhead to fully homomorphic encryption, intuitively achieved by severely limiting the scope of computations.  For instance, benchmarks from "Fully Homomorphic Encryption" last year gave that HElib only achieve around 500 multiplications per second even for relatively small integers, which is orders of magnitude worse than the penalty in bits that this scheme pays.
+
+
