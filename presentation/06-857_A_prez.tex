@@ -190,8 +190,14 @@ Weighted Inner Product: $\bbx' = \bbx_1^T H \bbx_2$
 \itz{
 \item{ Clients (Party B) calculate key-switch matrices based on operation $f$}
 \item{ Server (Party A) performs the operation without knowing $f$}
-\item{ Relies on key-switch matrices being indistinguishable from random}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=3.2in]{eve}
+\end{figure}
+
+\vspace{.07in}
+\item{ Relies on key-switch matrices being indistinguishable from random}
 }
 	
 \begin{block}{Learning with Error Problem (LWE)}
@@ -200,11 +206,6 @@ Given $S$ and $M$, solving $S'M = S + E$ to find $S'$ is hard
 \end{center}
 \end{block}
 
-\vspace{.07in}
-\begin{figure}[ht]
-\centering
-\includegraphics[width=3.2in]{eve}
-\end{figure}
 \end{frame}
 
 
