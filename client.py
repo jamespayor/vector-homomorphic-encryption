@@ -3,6 +3,11 @@ from cgi import escape as htmlEscape
 import cPickle as pk
 fileNames = pk.load(open('testFiles.pk'))
 
+# NOTE: Set this to the location of the server, and the port it's listening on.
+SERVER_LOCATION = "127.0.0.1"
+SERVER_PORT = 80
+# If you're running it locally, just update the port. Otherwise, use an IP address or a a domain name for the server location.
+
 def get_features():
 	from model import features
 	return features
@@ -77,7 +82,7 @@ def getResults(weightMatrix):
 
 def getLinearTransformations(keySwitch):
 	import requests as rq
-	post = rq.post('http://server.vhe.payor.com.au/transform', data={'keySwitch': repr(keySwitch)})
+	post = rq.post('http://%s:%s/transform' % (SERVER_LOCATION, SERVER_PORT), data={'keySwitch': repr(keySwitch)})
 	return tuple(tuple(int(y.strip().strip('L')) for y in x.strip('(').strip(')').split(',')) for x in post.text.splitlines())
 
 
